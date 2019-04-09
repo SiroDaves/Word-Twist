@@ -34,17 +34,24 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   TwistGame twist = new TwistGame(new WordsDataSource());
+  bool _isLoading = false;
 
   @override
   void initState() {
-    twist.generateSource().then((v) {
-      twist.reset();
-      twist.buildPossibleWords().then((v) {
-        setState(() {});
-      });
+    _createNewGame();
+    super.initState();
+  }
+
+  void _createNewGame() {
+    setState(() {
+      _isLoading = true;
     });
 
-    super.initState();
+    twist.createNewGame().then((v) {
+      setState(() {
+        _isLoading = false;
+      });
+    });
   }
 
   @override
@@ -57,13 +64,20 @@ class _MyHomePageState extends State<MyHomePage> {
             children: <Widget>[
               RaisedButton(
                 child: Text('New Game'),
-                onPressed: () {},
+                onPressed: () {
+                  _createNewGame();
+                },
               )
             ],
           ),
         ),
-        body: Padding(
-          padding: EdgeInsets.only(bottom: 32, left: 16, right: 16, top: 42),
+        body: _isLoading
+            ? Center(
+          child: CircularProgressIndicator(),
+        )
+            : Padding(
+          padding:
+          EdgeInsets.only(bottom: 32, left: 16, right: 16, top: 42),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -76,22 +90,28 @@ class _MyHomePageState extends State<MyHomePage> {
                         padding: EdgeInsets.all(0),
                         crossAxisCount: 3,
                         children: twist.possibleWords
-                            .map((w) => WordBox(
-                                  count: w.length,
-                                  word: w,
-                                  found: twist.foundWords.contains(w),
-                                ))
+                            .map((w) =>
+                            WordBox(
+                              count: w.length,
+                              word: w,
+                              found: twist.foundWords.contains(w),
+                            ))
                             .toList(),
                       ))),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: Iterable.generate(twist.builtWord.length).map((n) {
+                children:
+                Iterable.generate(twist.builtWord.length).map((n) {
                   return Container(
                       decoration: BoxDecoration(
-                          border:
-                              Border.all(color: theme.buttonColor, width: 1)),
+                          border: Border.all(
+                              color: theme.buttonColor, width: 1)),
                       child: MaterialButton(
-                        minWidth: (MediaQuery.of(context).size.width - 64) / 6,
+                        minWidth:
+                        (MediaQuery
+                            .of(context)
+                            .size
+                            .width - 64) / 6,
 //                onPressed: () {},
                         disabledElevation: 4,
                         disabledTextColor: Colors.black,
@@ -109,21 +129,26 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: Iterable.generate(
                     twist.length,
-                    (n) => Padding(
-                        padding: EdgeInsets.all(2),
-                        child: MaterialButton(
-                            color: theme.buttonColor,
-                            minWidth:
-                                (MediaQuery.of(context).size.width - 64) / 6,
-                            onPressed: () {
-                              setState(() {
-                                twist.toggleSelect(n);
-                              });
-                            },
-                            child: Text(
-                              twist.isSelected(n) ? ' ' : twist[n],
-                              style: TextStyle(fontSize: 36),
-                            )))).toList(),
+                        (n) =>
+                        Padding(
+                            padding: EdgeInsets.all(2),
+                            child: MaterialButton(
+                                color: theme.buttonColor,
+                                minWidth:
+                                (MediaQuery
+                                    .of(context)
+                                    .size
+                                    .width - 64) /
+                                    6,
+                                onPressed: () {
+                                  setState(() {
+                                    twist.toggleSelect(n);
+                                  });
+                                },
+                                child: Text(
+                                  twist.isSelected(n) ? ' ' : twist[n],
+                                  style: TextStyle(fontSize: 36),
+                                )))).toList(),
               ),
               Padding(
                 padding: EdgeInsets.only(top: 32),
@@ -145,7 +170,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: Text('Clear'),
                     onPressed: () {
                       setState(() {
-                        twist.reset();
+                        twist.resetSelection();
                       });
                     },
                     shape: RoundedRectangleBorder(
@@ -154,11 +179,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   RaisedButton(
                     child: Text('Enter'),
                     onPressed: () {
-                      final w = twist.builtWord.join().toLowerCase().trim();
+                      final w =
+                      twist.builtWord.join().toLowerCase().trim();
                       if (twist.possibleWords.contains(w.toLowerCase())) {
                         setState(() {
                           twist.foundWords.add(w);
-                          twist.reset();
+                          twist.resetSelection();
                         });
                       }
                     },

@@ -4,8 +4,7 @@ import 'dart:math';
 import 'package:trotter/trotter.dart';
 import 'package:word_twist/data/repo.dart';
 
-const _kSpace = '   ';
-const _kVowels = ['A', 'E', 'I', 'O', 'U'];
+const _kSpace = ' ';
 
 class TwistGame {
   final WordsRepository _repository;
@@ -19,32 +18,16 @@ class TwistGame {
 
   TwistGame(this._repository, {this.count = 6});
 
-  Future generateSource() async {
-//    final alphabet =
-//        Iterable.generate(26, (x) => String.fromCharCode('A'.codeUnitAt(0) + x))
-//            .toList();
-//    final rnd = new Random();
-//    var vowel = _kVowels[rnd.nextInt(_kVowels.length)];
-//    _source += vowel;
-//    vowel = _kVowels[rnd.nextInt(_kVowels.length)];
-//    while (_source.contains(vowel)) {
-//      vowel = _kVowels[rnd.nextInt(_kVowels.length)];
-//    }
-//    _source += vowel;
-//    _source += _kVowels[rnd.nextInt(_kVowels.length)];
-//    while (_source.length < count) {
-//      String l = alphabet[rnd.nextInt(alphabet.length - 1)];
-//      if (!_source.contains(l)) {
-//        _source += l;
-//      }
-//    }
+  Future createNewGame() async {
     _source = await _repository.getRandomWord();
     _sortedLetters = _source.split('');
     _sortedLetters.sort((a, b) => a.codeUnitAt(0).compareTo(b.codeUnitAt(0)));
     twistWord();
+    await _buildPossibleWords();
+    resetSelection();
   }
 
-  Future buildPossibleWords() async {
+  Future _buildPossibleWords() async {
     final port = ReceivePort();
     await Isolate.spawn(findAllPermutations, port.sendPort);
     await port.listen((data) async {
@@ -97,7 +80,7 @@ class TwistGame {
     selected[i] = !isSelected;
   }
 
-  void reset() {
+  void resetSelection() {
     selected.length = _source.length;
     selected.setAll(0, Iterable.generate(_source.length, (n) => false));
     builtWord.length = _source.length;
@@ -105,7 +88,7 @@ class TwistGame {
   }
 
   void twistWord() {
-    reset();
+    resetSelection();
     final rnd = new Random();
     final list = Iterable.generate(_source.length, (n) => _source[n]).toList();
     for (var i = 0; i < list.length; i++) {
