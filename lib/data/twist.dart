@@ -100,5 +100,10 @@ class TwistGame {
     _source = list.join().trim();
   }
 
+  void solveAll() {
+    foundWords.clear();
+    foundWords.addAll(possibleWords);
+  }
+
   get length => _source.length;
 }

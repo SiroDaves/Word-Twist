@@ -66,6 +66,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Text('New Game'),
                 onPressed: () {
                   _createNewGame();
+                  Navigator.pop(context);
+                },
+              ),
+              RaisedButton(
+                child: Text('Solve'),
+                onPressed: () {
+                  setState(() {
+                    twist.solveAll();
+                    Navigator.pop(context);
+                  });
                 },
               )
             ],
