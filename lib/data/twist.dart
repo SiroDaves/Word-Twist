@@ -121,6 +121,8 @@ class GameTimer {
 
   String get gameTime => '${((_seconds % 3600) ~/ 60)}:${_seconds % 60}';
 
+  bool get isTimeExpired => _seconds == 0;
+
   GameTimer(this._onTimeExpired, this._onTimeTick, [this.time = 3 * 60]);
 
   void restartTimer() {

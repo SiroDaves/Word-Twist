@@ -18,8 +18,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Word Twist',
       theme: ThemeData(
-          colorScheme: ColorScheme.dark().copyWith(
-              secondary: Colors.pinkAccent),
+          colorScheme:
+          ColorScheme.dark().copyWith(secondary: Colors.pinkAccent),
           brightness: Brightness.dark,
           primarySwatch: Colors.deepPurple),
       home: MyHomePage(title: 'Word Twist'),
@@ -43,9 +43,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    _timer = new GameTimer(() {}, _onTimeTick);
+    _timer = new GameTimer(_onTimeExpired, _onTimeTick);
     _createNewGame();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _timer.dispose();
+    super.dispose();
   }
 
   void _createNewGame() {
@@ -61,6 +67,12 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void _onTimeExpired() {
+    setState(() {
+      _timer.isTimeExpired;
+    });
+  }
+
   void _onTimeTick() {
     setState(() {
       _timer.gameTime;
@@ -70,6 +82,157 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final List<Widget> stackChildren = [
+      Padding(
+        padding: EdgeInsets.only(bottom: 32, left: 16, right: 16, top: 42),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              _timer.gameTime,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.display1,
+            ),
+            Expanded(
+                child: Padding(
+                    padding: EdgeInsets.only(bottom: 32, top: 16),
+                    child: GridView.count(
+                      childAspectRatio: 5,
+                      padding: EdgeInsets.all(0),
+                      crossAxisCount: 3,
+                      children: twist.possibleWords
+                          .map((w) =>
+                          WordBox(
+                            count: w.length,
+                            word: w,
+                            found: twist.foundWords.contains(w),
+                          ))
+                          .toList(),
+                    ))),
+            GestureDetector(
+              onTap: () {
+                int i = twist.builtWord.lastIndexWhere((s) => s != kSpace);
+                if (i >= 0) {
+                  setState(() {
+                    twist.toggleSelect(
+                        twist.sourceLetters.indexOf(twist.builtWord[i]));
+                  });
+                }
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: Iterable.generate(twist.builtWord.length).map((n) {
+                  return Container(
+                      decoration: BoxDecoration(
+                          border: Border.all(color: Colors.white30, width: 1)),
+                      child: MaterialButton(
+                        minWidth: (MediaQuery
+                            .of(context)
+                            .size
+                            .width - 64) / 6,
+//                onPressed: () {},
+                        disabledElevation: 4,
+                        child: Text(
+                          twist.builtWord[n],
+                          style: TextStyle(fontSize: 30),
+                        ),
+                      ));
+                }).toList(),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 32),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: Iterable.generate(
+                  twist.length,
+                      (n) =>
+                      Padding(
+                          padding: EdgeInsets.all(2),
+                          child: MaterialButton(
+                              color: theme.colorScheme.secondary,
+                              minWidth:
+                              (MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width - 64) / 6,
+                              onPressed: () {
+                                if (twist.isSelected(n)) return;
+                                setState(() {
+                                  twist.toggleSelect(n);
+                                });
+                              },
+                              child: Text(
+                                twist.isSelected(n) ? kSpace : twist[n],
+                                style: TextStyle(fontSize: 36),
+                              )))).toList(),
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 32),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                RaisedButton(
+                  child: Text('Twist'),
+                  onPressed: () {
+                    setState(() {
+                      twist.twistWord();
+                    });
+                  },
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                ),
+                RaisedButton(
+                  child: Text('Clear'),
+                  onPressed: () {
+                    setState(() {
+                      twist.resetSelection();
+                    });
+                  },
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                ),
+                RaisedButton(
+                  child: Text('Enter'),
+                  onPressed: () {
+                    final w = twist.builtWord.join().toLowerCase().trim();
+                    if (twist.possibleWords.contains(w.toLowerCase())) {
+                      setState(() {
+                        twist.foundWords.add(w);
+                        twist.resetSelection();
+                      });
+                    }
+                  },
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                )
+              ],
+            )
+          ],
+        ),
+      )
+    ];
+
+    if (_timer.isTimeExpired) {
+      stackChildren.add(Container(
+        color: theme.disabledColor,
+        child: SizedBox.fromSize(
+          size: MediaQuery
+              .of(context)
+              .size,
+          child: Center(
+            child: Text(
+              'Game Over',
+              style: theme.textTheme.display1.copyWith(color: Colors.white70),
+            ),
+          ),
+        ),
+      ));
+    }
+
     return Scaffold(
         drawer: Container(
           padding: EdgeInsets.all(32),
@@ -98,140 +261,8 @@ class _MyHomePageState extends State<MyHomePage> {
             ? Center(
           child: CircularProgressIndicator(),
         )
-            : Padding(
-          padding:
-          EdgeInsets.only(bottom: 32, left: 16, right: 16, top: 42),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                _timer.gameTime,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.display1,
-              ),
-              Expanded(
-                  child: Padding(
-                      padding: EdgeInsets.only(bottom: 32, top: 16),
-                      child: GridView.count(
-                        childAspectRatio: 5,
-                        padding: EdgeInsets.all(0),
-                        crossAxisCount: 3,
-                        children: twist.possibleWords
-                            .map((w) =>
-                            WordBox(
-                              count: w.length,
-                              word: w,
-                              found: twist.foundWords.contains(w),
-                            ))
-                            .toList(),
-                      ))),
-              GestureDetector(
-                onTap: () {
-                  int i = twist.builtWord.lastIndexWhere((s) => s != kSpace);
-                  if (i >= 0) {
-                    setState(() {
-                      twist.toggleSelect(
-                          twist.sourceLetters.indexOf(twist.builtWord[i]));
-                    });
-                  }
-                },
-                child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children:
-                Iterable.generate(twist.builtWord.length).map((n) {
-                  return Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                              color: Colors.white30, width: 1)),
-                      child: MaterialButton(
-                        minWidth:
-                        (MediaQuery
-                            .of(context)
-                            .size
-                            .width - 64) / 6,
-//                onPressed: () {},
-                        disabledElevation: 4,
-                        child: Text(
-                          twist.builtWord[n],
-                          style: TextStyle(fontSize: 30),
-                        ),
-                      ));
-                }).toList(),
-                ),),
-              Padding(
-                padding: EdgeInsets.only(top: 32),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: Iterable.generate(
-                    twist.length,
-                        (n) =>
-                        Padding(
-                            padding: EdgeInsets.all(2),
-                            child: MaterialButton(
-                                color: theme.colorScheme.secondary,
-                                minWidth:
-                                (MediaQuery
-                                    .of(context)
-                                    .size
-                                    .width - 64) /
-                                    6,
-                                onPressed: () {
-                                  setState(() {
-                                    twist.toggleSelect(n);
-                                  });
-                                },
-                                child: Text(
-                                  twist.isSelected(n) ? ' ' : twist[n],
-                                  style: TextStyle(fontSize: 36),
-                                )))).toList(),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 32),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  RaisedButton(
-                    child: Text('Twist'),
-                    onPressed: () {
-                      setState(() {
-                        twist.twistWord();
-                      });
-                    },
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
-                  ),
-                  RaisedButton(
-                    child: Text('Clear'),
-                    onPressed: () {
-                      setState(() {
-                        twist.resetSelection();
-                      });
-                    },
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
-                  ),
-                  RaisedButton(
-                    child: Text('Enter'),
-                    onPressed: () {
-                      final w =
-                      twist.builtWord.join().toLowerCase().trim();
-                      if (twist.possibleWords.contains(w.toLowerCase())) {
-                        setState(() {
-                          twist.foundWords.add(w);
-                          twist.resetSelection();
-                        });
-                      }
-                    },
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
-                  )
-                ],
-              )
-            ],
-          ),
+            : Stack(
+          children: stackChildren,
         ));
   }
 }
