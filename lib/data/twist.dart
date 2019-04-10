@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:isolate';
 import 'dart:math';
 
@@ -19,6 +20,7 @@ class TwistGame {
   TwistGame(this._repository, {this.count = 6});
 
   Future createNewGame() async {
+    foundWords.clear();
     _source = await _repository.getRandomWord();
     _sortedLetters = _source.split('');
     _sortedLetters.sort((a, b) => a.codeUnitAt(0).compareTo(b.codeUnitAt(0)));
@@ -105,5 +107,33 @@ class TwistGame {
     foundWords.addAll(possibleWords);
   }
 
-  get length => _source.length;
+  int get length => _source.length;
+}
+
+class GameTimer {
+  final Function _onTimeExpired;
+  final Function _onTimeTick;
+  int _seconds = 3 * 60;
+  StreamSubscription _streamSubscription;
+
+  String get gameTime => '${((_seconds % 3600) ~/ 60)}:${_seconds % 60}';
+
+  GameTimer(this._onTimeExpired, this._onTimeTick);
+
+  void restartTimer() {
+    dispose();
+    _streamSubscription =
+        new Stream.periodic(new Duration(seconds: 1)).listen((d) {
+          _seconds--;
+          _onTimeTick();
+          if (_seconds == 0) {
+            _onTimeExpired();
+            _streamSubscription.cancel();
+          }
+        });
+  }
+
+  void dispose() {
+    _streamSubscription?.cancel();
+  }
 }
