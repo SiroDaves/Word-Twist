@@ -126,7 +126,17 @@ class _MyHomePageState extends State<MyHomePage> {
                             ))
                             .toList(),
                       ))),
-              Row(
+              GestureDetector(
+                onTap: () {
+                  int i = twist.builtWord.lastIndexWhere((s) => s != kSpace);
+                  if (i >= 0) {
+                    setState(() {
+                      twist.toggleSelect(
+                          twist.sourceLetters.indexOf(twist.builtWord[i]));
+                    });
+                  }
+                },
+                child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children:
                 Iterable.generate(twist.builtWord.length).map((n) {
@@ -148,7 +158,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ));
                 }).toList(),
-              ),
+                ),),
               Padding(
                 padding: EdgeInsets.only(top: 32),
               ),

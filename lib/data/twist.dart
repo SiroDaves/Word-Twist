@@ -5,7 +5,7 @@ import 'dart:math';
 import 'package:trotter/trotter.dart';
 import 'package:word_twist/data/repo.dart';
 
-const _kSpace = ' ';
+const kSpace = ' ';
 
 class TwistGame {
   final WordsRepository _repository;
@@ -75,9 +75,9 @@ class TwistGame {
   void toggleSelect(int i) {
     final bool isSelected = selected[i];
     if (isSelected) {
-      builtWord[builtWord.indexOf(_source[i])] = _kSpace;
+      builtWord[builtWord.indexOf(_source[i])] = kSpace;
     } else {
-      builtWord[builtWord.indexOf(_kSpace)] = _source[i];
+      builtWord[builtWord.indexOf(kSpace)] = _source[i];
     }
     selected[i] = !isSelected;
   }
@@ -86,7 +86,7 @@ class TwistGame {
     selected.length = _source.length;
     selected.setAll(0, Iterable.generate(_source.length, (n) => false));
     builtWord.length = _source.length;
-    builtWord.setAll(0, Iterable.generate(_source.length, (n) => _kSpace));
+    builtWord.setAll(0, Iterable.generate(_source.length, (n) => kSpace));
   }
 
   void twistWord() {
@@ -108,19 +108,23 @@ class TwistGame {
   }
 
   int get length => _source.length;
+
+  String get sourceLetters => _source;
 }
 
 class GameTimer {
   final Function _onTimeExpired;
   final Function _onTimeTick;
+  final int time;
   int _seconds = 3 * 60;
   StreamSubscription _streamSubscription;
 
   String get gameTime => '${((_seconds % 3600) ~/ 60)}:${_seconds % 60}';
 
-  GameTimer(this._onTimeExpired, this._onTimeTick);
+  GameTimer(this._onTimeExpired, this._onTimeTick, [this.time = 3 * 60]);
 
   void restartTimer() {
+    _seconds = time;
     dispose();
     _streamSubscription =
         new Stream.periodic(new Duration(seconds: 1)).listen((d) {
