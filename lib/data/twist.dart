@@ -110,6 +110,9 @@ class TwistGame {
   int get length => _source.length;
 
   String get sourceLetters => _source;
+
+  String get gameScore =>
+      GameScoreCalc.calcScore(possibleWords, foundWords).toString();
 }
 
 class GameTimer {
@@ -147,5 +150,16 @@ class GameTimer {
 
   void dispose() {
     _streamSubscription?.cancel();
+  }
+}
+
+class GameScoreCalc {
+  static const int _kMaxWords = 200;
+
+  static int calcScore(Iterable<String> possibleWords,
+      Iterable<String> foundWords) {
+    if (foundWords.isEmpty) return 0;
+    int multiplier = (1 / (possibleWords.length / _kMaxWords)).round();
+    return foundWords.map((w) => w.length * multiplier).reduce((l, r) => l + r);
   }
 }

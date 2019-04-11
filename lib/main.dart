@@ -89,11 +89,23 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Text(
-              _timer.gameTime,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.display1,
-            ),
+            Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      _timer.gameTime,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.display1,
+                    ),
+                    Text(
+                      twist.gameScore,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.display1,
+                    ),
+                  ],
+                )),
             Expanded(
                 child: Padding(
                     padding: EdgeInsets.only(bottom: 32, top: 16),
@@ -125,7 +137,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 children: Iterable.generate(twist.builtWord.length).map((n) {
                   return Container(
                       decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white30, width: 1)),
+                          border: Border.all(color: Colors.white, width: 1)),
                       child: MaterialButton(
                         minWidth: (MediaQuery
                             .of(context)
@@ -135,7 +147,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         disabledElevation: 4,
                         child: Text(
                           twist.builtWord[n],
-                          style: TextStyle(fontSize: 30),
+                          style: TextStyle(fontSize: 30)
+                              .copyWith(color: Colors.white),
                         ),
                       ));
                 }).toList(),
@@ -203,6 +216,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       setState(() {
                         twist.foundWords.add(w);
                         twist.resetSelection();
+                        twist.gameScore;
                       });
                     }
                   },
@@ -277,14 +291,13 @@ class WordBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: Iterable.generate(count, (n) {
         return Container(
             decoration: BoxDecoration(
-                border: Border.all(width: 0.3, color: theme.highlightColor)),
+                border: Border.all(width: 0.3, color: Colors.white70)),
             child: SizedBox.fromSize(
                 size: Size(20, 20),
                 child: Center(
