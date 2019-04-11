@@ -226,7 +226,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Center(
             child: Text(
               'Game Over',
-              style: theme.textTheme.display1.copyWith(color: Colors.white70),
+              style: theme.textTheme.display1.copyWith(color: Colors.white),
             ),
           ),
         ),

@@ -119,7 +119,13 @@ class GameTimer {
   int _seconds = 3 * 60;
   StreamSubscription _streamSubscription;
 
-  String get gameTime => '${((_seconds % 3600) ~/ 60)}:${_seconds % 60}';
+  String get gameTime {
+    int mins = ((_seconds % 3600) ~/ 60);
+    int seconds = _seconds % 60;
+    return mins >= 10
+        ? '$mins'
+        : '0$mins' + ':' + (seconds >= 10 ? '$seconds' : '0$seconds');
+  }
 
   bool get isTimeExpired => _seconds == 0;
 
