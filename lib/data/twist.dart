@@ -121,6 +121,7 @@ class GameTimer {
   final int time;
   int _seconds = 3 * 60;
   StreamSubscription _streamSubscription;
+  bool _paused = false;
 
   String get gameTime {
     int mins = ((_seconds % 3600) ~/ 60);
@@ -132,13 +133,17 @@ class GameTimer {
 
   bool get isTimeExpired => _seconds == 0;
 
+  bool get isPaused => _paused;
+
   GameTimer(this._onTimeExpired, this._onTimeTick, [this.time = 3 * 60]);
 
   void restartTimer() {
     _seconds = time;
     dispose();
     _streamSubscription =
-        new Stream.periodic(new Duration(seconds: 1)).listen((d) {
+        new Stream.periodic(new Duration(seconds: 1))
+            .where((d) => !_paused)
+            .listen((d) {
           _seconds--;
           _onTimeTick();
           if (_seconds == 0) {
@@ -146,6 +151,10 @@ class GameTimer {
             _streamSubscription.cancel();
           }
         });
+  }
+
+  void togglePause() {
+    _paused = !_paused;
   }
 
   void dispose() {

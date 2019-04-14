@@ -36,13 +36,14 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   TwistGame twist = new TwistGame(new WordsDataSource());
   bool _isLoading = false;
   GameTimer _timer;
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     _timer = new GameTimer(_onTimeExpired, _onTimeTick);
     _createNewGame();
     super.initState();
@@ -50,6 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _timer.dispose();
     super.dispose();
   }
@@ -77,6 +79,14 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _timer.gameTime;
     });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if ((_timer.isPaused && state == AppLifecycleState.resumed) ||
+        (!_timer.isPaused && state != AppLifecycleState.resumed)) {
+      _timer.togglePause();
+    }
   }
 
   @override
@@ -108,7 +118,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 )),
             Expanded(
                 child: Padding(
-                    padding: EdgeInsets.only(bottom: 32, top: 16),
+                    padding: EdgeInsets.only(bottom: 24, top: 24),
                     child: GridView.count(
                       childAspectRatio: 5,
                       padding: EdgeInsets.all(0),
