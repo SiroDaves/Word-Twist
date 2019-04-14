@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:vector_math/vector_math_64.dart' show Vector3;
 import 'package:word_twist/data/twist.dart';
 import 'package:word_twist/data/word_repo.dart';
 
@@ -43,14 +46,20 @@ class _MyHomePageState extends State<MyHomePage>
   GameTimer _timer;
   AnimationController _animationController;
   Animation<double> _animation;
+  AnimationController _shakeController;
 
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
+    _shakeController = new AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 750))
+      ..addListener(() {
+        setState(() {});
+      });
     _animationController = new AnimationController(
-        duration: const Duration(milliseconds: 1000), vsync: this);
+        duration: const Duration(milliseconds: 1200), vsync: this);
     _animation = CurvedAnimation(
-        parent: _animationController, curve: Curves.easeInCirc);
+        parent: _animationController, curve: Curves.easeInOutSine);
     _timer = new GameTimer(_onTimeExpired, _onTimeTick);
     _createNewGame();
     super.initState();
@@ -60,6 +69,7 @@ class _MyHomePageState extends State<MyHomePage>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _timer.dispose();
+    _shakeController.dispose();
     _animationController.dispose();
     super.dispose();
   }
@@ -98,6 +108,12 @@ class _MyHomePageState extends State<MyHomePage>
         (!_timer.isPaused && state != AppLifecycleState.resumed)) {
       _timer.togglePause();
     }
+  }
+
+  Vector3 getTranslation() {
+    double progress = _shakeController.value;
+    double offset = sin(progress * pi * 5) * 10;
+    return Vector3(offset, offset / 8, 0);
   }
 
   @override
@@ -144,37 +160,41 @@ class _MyHomePageState extends State<MyHomePage>
                           .toList(),
                     ))),
             GestureDetector(
-              onTap: () {
-                int i = twist.builtWord.lastIndexWhere((s) => s != kSpace);
-                if (i >= 0) {
-                  setState(() {
-                    twist.toggleSelect(
-                        twist.sourceLetters.indexOf(twist.builtWord[i]));
-                  });
-                }
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: Iterable.generate(twist.builtWord.length).map((n) {
-                  return Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white, width: 1)),
-                      child: MaterialButton(
-                        minWidth: (MediaQuery
-                            .of(context)
-                            .size
-                            .width - 64) / 6,
+                onTap: () {
+                  int i = twist.builtWord.lastIndexWhere((s) => s != kSpace);
+                  if (i >= 0) {
+                    setState(() {
+                      twist.toggleSelect(
+                          twist.sourceLetters.indexOf(twist.builtWord[i]));
+                    });
+                  }
+                },
+                child: Container(
+                    decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white, width: 0.5)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children:
+                      Iterable.generate(twist.builtWord.length).map((n) {
+                        return Container(
+//                      decoration: BoxDecoration(
+//                          border: Border.all(color: Colors.white, width: 1)),
+                            child: MaterialButton(
+                              minWidth:
+                              (MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width - 64) / 6,
 //                onPressed: () {},
-                        disabledElevation: 4,
-                        child: Text(
-                          twist.builtWord[n],
-                          style: TextStyle(fontSize: 30)
-                              .copyWith(color: Colors.white),
-                        ),
-                      ));
-                }).toList(),
-              ),
-            ),
+                              disabledElevation: 4,
+                              child: Text(
+                                twist.builtWord[n],
+                                style: TextStyle(fontSize: 30)
+                                    .copyWith(color: Colors.white),
+                              ),
+                            ));
+                      }).toList(),
+                    ))),
             Padding(
               padding: EdgeInsets.only(top: 32),
             ),
@@ -239,6 +259,9 @@ class _MyHomePageState extends State<MyHomePage>
                         twist.resetSelection();
                         twist.gameScore;
                       });
+                    } else {
+                      _shakeController.reset();
+                      _shakeController.forward();
                     }
                   },
                   shape: RoundedRectangleBorder(
@@ -287,9 +310,11 @@ class _MyHomePageState extends State<MyHomePage>
             ? Center(
           child: CircularProgressIndicator(),
         )
-            : Stack(
-          children: stackChildren,
-        ));
+            : Transform(
+            transform: Matrix4.translation(getTranslation()),
+            child: Stack(
+              children: stackChildren,
+            )));
   }
 }
 
@@ -325,9 +350,7 @@ class WordBox extends StatelessWidget {
 
 class GameOverOverlay extends AnimatedWidget {
   static final _opacityTween = Tween<double>(begin: 0.1, end: 1);
-  static final _colorTween =
-  ColorTween(begin: Colors.black, end: Colors.black.withAlpha(100));
-  static final _fontSizeTween = Tween<double>(begin: 0, end: 40);
+  static final _fontSizeTween = Tween<double>(begin: 0, end: 46);
   Tween<double> _widthTween;
   Tween<double> _heightTween;
 
@@ -351,14 +374,14 @@ class GameOverOverlay extends AnimatedWidget {
     return Container(
         child: SizedBox.expand(
             child: Center(
-              child: Container(
-                  width: _widthTween.evaluate(animation),
-                  height: _heightTween.evaluate(animation),
-                  decoration: BoxDecoration(
-                      color: _colorTween.evaluate(animation),
-                      shape: BoxShape.rectangle),
-                  child: Opacity(
-                      opacity: _opacityTween.evaluate(animation),
+              child: Opacity(
+                  opacity: _opacityTween.evaluate(animation),
+                  child: Container(
+                      width: _widthTween.evaluate(animation),
+                      height: _heightTween.evaluate(animation),
+                      decoration: BoxDecoration(
+                          color: Colors.black.withAlpha(140),
+                          shape: BoxShape.rectangle),
                       child: Center(
                         child: Text(
                           'Game Over',
