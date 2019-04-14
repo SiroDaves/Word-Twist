@@ -42,18 +42,15 @@ class _MyHomePageState extends State<MyHomePage>
   bool _isLoading = false;
   GameTimer _timer;
   AnimationController _animationController;
-  Animation<int> _animation;
+  Animation<double> _animation;
 
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
-    _animationController =
-    new AnimationController(duration: const Duration(seconds: 1), vsync: this);
-//    ..addStatusListener((s) {
-//      if (s == AnimationStatus.completed) {
-//        _animationController.reset();
-//      }
-//    });
+    _animationController = new AnimationController(
+        duration: const Duration(milliseconds: 1000), vsync: this);
+    _animation = CurvedAnimation(
+        parent: _animationController, curve: Curves.easeInCirc);
     _timer = new GameTimer(_onTimeExpired, _onTimeTick);
     _createNewGame();
     super.initState();
@@ -84,14 +81,8 @@ class _MyHomePageState extends State<MyHomePage>
     setState(() {
       _timer.isTimeExpired;
     });
-    _animation =
-    new IntTween(begin: 100, end: 500)
-        .animate(_animationController)
-      ..addListener(() {
-        setState(() {});
-      });
-    if (_animationController.status ==
-        AnimationStatus.completed) _animationController.reset();
+    if (_animationController.status == AnimationStatus.completed)
+      _animationController.reset();
     _animationController.forward();
   }
 
@@ -261,26 +252,9 @@ class _MyHomePageState extends State<MyHomePage>
     ];
 
     if (_timer.isTimeExpired) {
-      stackChildren.add(Container(
-          child: SizedBox.fromSize(
-              size: MediaQuery
-                  .of(context)
-                  .size,
-              child: Center(
-                child: Container(
-                    decoration: BoxDecoration(
-                        color: theme.disabledColor, shape: BoxShape.circle),
-                    child: SizedBox(
-                        height: _animation.value.toDouble(),
-                        width: _animation.value.toDouble(),
-                        child: Center(
-                          child: Text(
-                            'Game Over',
-                            style: theme.textTheme.display1
-                                .copyWith(color: Colors.white),
-                          ),
-                        ))),
-              ))));
+      stackChildren.add(GameOverOverlay(
+        animation: _animation,
+      ));
     }
 
     return Scaffold(
@@ -346,5 +320,53 @@ class WordBox extends StatelessWidget {
                     ))));
       }).toList(),
     );
+  }
+}
+
+class GameOverOverlay extends AnimatedWidget {
+  static final _opacityTween = Tween<double>(begin: 0.1, end: 1);
+  static final _colorTween =
+  ColorTween(begin: Colors.black, end: Colors.black.withAlpha(100));
+  static final _fontSizeTween = Tween<double>(begin: 0, end: 40);
+  Tween<double> _widthTween;
+  Tween<double> _heightTween;
+
+  GameOverOverlay({Key key, Animation<double> animation})
+      : super(key: key, listenable: animation) {}
+
+  @override
+  Widget build(BuildContext context) {
+    _widthTween =
+        Tween<double>(begin: 0, end: MediaQuery
+            .of(context)
+            .size
+            .width);
+    _heightTween =
+        Tween<double>(begin: 0, end: MediaQuery
+            .of(context)
+            .size
+            .height);
+    final theme = Theme.of(context);
+    final Animation<double> animation = listenable;
+    return Container(
+        child: SizedBox.expand(
+            child: Center(
+              child: Container(
+                  width: _widthTween.evaluate(animation),
+                  height: _heightTween.evaluate(animation),
+                  decoration: BoxDecoration(
+                      color: _colorTween.evaluate(animation),
+                      shape: BoxShape.rectangle),
+                  child: Opacity(
+                      opacity: _opacityTween.evaluate(animation),
+                      child: Center(
+                        child: Text(
+                          'Game Over',
+                          style: theme.textTheme.display1.copyWith(
+                              color: Colors.white,
+                              fontSize: _fontSizeTween.evaluate(animation)),
+                        ),
+                      ))),
+            )));
   }
 }
