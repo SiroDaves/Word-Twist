@@ -138,19 +138,23 @@ class GameTimer {
   GameTimer(this._onTimeExpired, this._onTimeTick, [this.time = 3 * 60]);
 
   void restartTimer() {
-    _seconds = time;
     dispose();
-    _streamSubscription =
-        new Stream.periodic(new Duration(seconds: 1))
-            .where((d) => !_paused)
-            .listen((d) {
-          _seconds--;
-          _onTimeTick();
-          if (_seconds == 0) {
-            _onTimeExpired();
-            _streamSubscription.cancel();
-          }
-        });
+    _seconds = time;
+    _streamSubscription = new Stream.periodic(new Duration(seconds: 1))
+        .where((d) => !_paused)
+        .listen((d) {
+      _seconds--;
+      _onTimeTick();
+      if (_seconds == 0) {
+        _onTimeExpired();
+        _streamSubscription.cancel();
+      }
+    });
+  }
+
+  void stop() {
+    dispose();
+    _seconds = 0;
   }
 
   void togglePause() {

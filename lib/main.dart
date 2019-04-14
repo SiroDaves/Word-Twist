@@ -36,14 +36,24 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
+class _MyHomePageState extends State<MyHomePage>
+    with WidgetsBindingObserver, TickerProviderStateMixin {
   TwistGame twist = new TwistGame(new WordsDataSource());
   bool _isLoading = false;
   GameTimer _timer;
+  AnimationController _animationController;
+  Animation<int> _animation;
 
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
+    _animationController =
+    new AnimationController(duration: const Duration(seconds: 1), vsync: this);
+//    ..addStatusListener((s) {
+//      if (s == AnimationStatus.completed) {
+//        _animationController.reset();
+//      }
+//    });
     _timer = new GameTimer(_onTimeExpired, _onTimeTick);
     _createNewGame();
     super.initState();
@@ -53,6 +63,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _timer.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -73,6 +84,15 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     setState(() {
       _timer.isTimeExpired;
     });
+    _animation =
+    new IntTween(begin: 100, end: 500)
+        .animate(_animationController)
+      ..addListener(() {
+        setState(() {});
+      });
+    if (_animationController.status ==
+        AnimationStatus.completed) _animationController.reset();
+    _animationController.forward();
   }
 
   void _onTimeTick() {
@@ -242,19 +262,25 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
     if (_timer.isTimeExpired) {
       stackChildren.add(Container(
-        color: theme.disabledColor,
-        child: SizedBox.fromSize(
-          size: MediaQuery
-              .of(context)
-              .size,
-          child: Center(
-            child: Text(
-              'Game Over',
-              style: theme.textTheme.display1.copyWith(color: Colors.white),
-            ),
-          ),
-        ),
-      ));
+          child: SizedBox.fromSize(
+              size: MediaQuery
+                  .of(context)
+                  .size,
+              child: Center(
+                child: Container(
+                    decoration: BoxDecoration(
+                        color: theme.disabledColor, shape: BoxShape.circle),
+                    child: SizedBox(
+                        height: _animation.value.toDouble(),
+                        width: _animation.value.toDouble(),
+                        child: Center(
+                          child: Text(
+                            'Game Over',
+                            style: theme.textTheme.display1
+                                .copyWith(color: Colors.white),
+                          ),
+                        ))),
+              ))));
     }
 
     return Scaffold(
@@ -276,6 +302,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     twist.solveAll();
                     Navigator.pop(context);
                   });
+                  _timer.stop();
+                  _onTimeExpired();
                 },
               )
             ],
