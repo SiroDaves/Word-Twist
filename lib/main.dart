@@ -312,10 +312,10 @@ class _AnimatedWordBoxState extends State<AnimatedWordBox> with SingleTickerProv
 
   @override
   void initState() {
-    animationController = new AnimationController(duration: Duration(milliseconds: 150 * widget.count), vsync: this);
+    animationController = new AnimationController(duration: Duration(milliseconds: 125 * widget.count), vsync: this);
     animations = Iterable.generate(widget.count)
-        .map((n) => Tween<double>(begin: 0.4, end: 1).animate(CurvedAnimation(
-            parent: animationController, curve: Interval(n / widget.count, (n + 1) / widget.count , curve: Curves.bounceIn))))
+        .map((n) => Tween<double>(begin: 1.5, end: 1).animate(CurvedAnimation(
+            parent: animationController, curve: Interval(n / widget.count, (n + 1) / widget.count , curve: Curves.easeInCubic))))
         .toList();    
     super.initState();
   }
@@ -359,14 +359,16 @@ class _AnimatedWordBoxState extends State<AnimatedWordBox> with SingleTickerProv
                       scale: animations[n].value,
                       child: Container(
                           decoration: BoxDecoration(border: Border.all(width: 0.3, color: Colors.white70)),
-                          child: SizedBox.fromSize(
+                          child: Opacity(
+                            opacity: 2 - animations[n].value,
+                            child: SizedBox.fromSize(
                               size: Size(20, 20),
                               child: Center(
                                   child: Text(
-                                animations[n].value > 0.4 ? widget.word[n] : '',
+                                animations[n].value >=1.5 ? '' : widget.word[n],
                                 textAlign: TextAlign.center,
                                 style: TextStyle(fontSize: 14),
-                              )))));
+                              ))))));
                 }).toList(),
               );
             },
