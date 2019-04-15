@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Word Twist',
       theme: ThemeData(
+          fontFamily: 'Quicksand',
           colorScheme: ColorScheme.dark().copyWith(secondary: Colors.pinkAccent),
           brightness: Brightness.dark,
           primarySwatch: Colors.deepPurple),
