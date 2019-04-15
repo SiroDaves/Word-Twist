@@ -111,8 +111,17 @@ class TwistGame {
 
   String get sourceLetters => _source;
 
-  String get gameScore =>
-      GameScoreCalc.calcScore(possibleWords, foundWords).toString();
+  String _oldGameScore = '0';
+  String _gameScore = '0';
+  String get oldGameScore => _oldGameScore;
+  String get gameScore {
+    final score = GameScoreCalc.calcScore(possibleWords, foundWords).toString();
+    if (_gameScore != score) {
+      _oldGameScore = _gameScore;
+      _gameScore = score;
+    }
+    return score;
+  }
 }
 
 class GameTimer {
@@ -126,9 +135,7 @@ class GameTimer {
   String get gameTime {
     int mins = ((_seconds % 3600) ~/ 60);
     int seconds = _seconds % 60;
-    return mins >= 10
-        ? '$mins'
-        : '0$mins' + ':' + (seconds >= 10 ? '$seconds' : '0$seconds');
+    return mins >= 10 ? '$mins' : '0$mins' + ':' + (seconds >= 10 ? '$seconds' : '0$seconds');
   }
 
   bool get isTimeExpired => _seconds == 0;
@@ -140,9 +147,7 @@ class GameTimer {
   void restartTimer() {
     dispose();
     _seconds = time;
-    _streamSubscription = new Stream.periodic(new Duration(seconds: 1))
-        .where((d) => !_paused)
-        .listen((d) {
+    _streamSubscription = new Stream.periodic(new Duration(seconds: 1)).where((d) => !_paused).listen((d) {
       _seconds--;
       _onTimeTick();
       if (_seconds == 0) {
@@ -169,8 +174,7 @@ class GameTimer {
 class GameScoreCalc {
   static const int _kMaxWords = 200;
 
-  static int calcScore(Iterable<String> possibleWords,
-      Iterable<String> foundWords) {
+  static int calcScore(Iterable<String> possibleWords, Iterable<String> foundWords) {
     if (foundWords.isEmpty) return 0;
     int multiplier = (1 / (possibleWords.length / _kMaxWords)).round();
     return foundWords.map((w) => w.length * multiplier).reduce((l, r) => l + r);

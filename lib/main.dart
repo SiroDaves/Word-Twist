@@ -131,10 +131,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                       textAlign: TextAlign.center,
                       style: theme.textTheme.display1,
                     ),
-                    Text(
-                      twist.gameScore,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.display1,
+                    Points(
+                      oldVal: twist.oldGameScore,
+                      currentVal: twist.gameScore,
                     ),
                   ],
                 )),
@@ -163,7 +162,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                   }
                 },
                 child: Container(
-                    decoration: BoxDecoration(border: Border.all(color: Colors.white, width: 0.5)),
+                    decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white, width: 0.5),
+                        borderRadius: BorderRadius.all(Radius.circular(5))),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: Iterable.generate(twist.builtWord.length).map((n) {
@@ -316,8 +317,9 @@ class _AnimatedWordBoxState extends State<AnimatedWordBox> with SingleTickerProv
     animationController = new AnimationController(duration: Duration(milliseconds: 125 * widget.count), vsync: this);
     animations = Iterable.generate(widget.count)
         .map((n) => Tween<double>(begin: 1.5, end: 1).animate(CurvedAnimation(
-            parent: animationController, curve: Interval(n / widget.count, (n + 1) / widget.count , curve: Curves.easeInCubic))))
-        .toList();    
+            parent: animationController,
+            curve: Interval(n / widget.count, (n + 1) / widget.count, curve: Curves.easeInCubic))))
+        .toList();
     super.initState();
   }
 
@@ -361,15 +363,15 @@ class _AnimatedWordBoxState extends State<AnimatedWordBox> with SingleTickerProv
                       child: Container(
                           decoration: BoxDecoration(border: Border.all(width: 0.3, color: Colors.white70)),
                           child: Opacity(
-                            opacity: 2 - animations[n].value,
-                            child: SizedBox.fromSize(
-                              size: Size(20, 20),
-                              child: Center(
-                                  child: Text(
-                                animations[n].value >=1.5 ? '' : widget.word[n],
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 14),
-                              ))))));
+                              opacity: 2 - animations[n].value,
+                              child: SizedBox.fromSize(
+                                  size: Size(20, 20),
+                                  child: Center(
+                                      child: Text(
+                                    animations[n].value >= 1.5 ? '' : widget.word[n],
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(fontSize: 14),
+                                  ))))));
                 }).toList(),
               );
             },
@@ -458,18 +460,58 @@ class GameOverOverlay extends StatelessWidget {
   }
 }
 
-class Points extends StatelessWidget {
-  final Animation<double> controller;
-  final String points;
+class Points extends StatefulWidget {
+  String oldVal;
+  String currentVal;
 
-  const Points({Key key, this.controller, this.points}) : super(key: key);
+  Points({Key key, this.oldVal = '0', this.currentVal}) : super(key: key);
+
+  @override
+  _PointsState createState() => _PointsState();
+}
+
+class _PointsState extends State<Points> with SingleTickerProviderStateMixin {
+  AnimationController animationController;
+  Animation<double> zoomAnimation;
+  String score = '';
   @override
   Widget build(BuildContext context) {
+    if (score != widget.currentVal && animationController.isDismissed) animationController.forward();
     return AnimatedBuilder(
-      animation: controller,
+      animation: animationController,
       builder: (c, w) {
-        return Text('');
+        return Transform.scale(
+          scale: zoomAnimation.value,
+          child: Text(
+            score,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.display1,
+          ),
+        );
       },
     );
+  }
+
+  @override
+  void initState() {
+    score = widget.oldVal;
+    animationController = new AnimationController(duration: const Duration(milliseconds: 500), vsync: this)
+      ..addStatusListener((s) {
+        if (s == AnimationStatus.completed) {
+          animationController.reverse();
+          setState(() {
+            score = widget.currentVal;
+          });
+        } 
+      });
+    zoomAnimation = Tween<double>(begin: 1, end: 0)
+        .animate(CurvedAnimation(parent: animationController, curve: Interval(0, 1, curve: Curves.easeOutSine)));
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    animationController.dispose();
+    super.dispose();
   }
 }
