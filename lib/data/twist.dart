@@ -110,18 +110,9 @@ class TwistGame {
   int get length => _source.length;
 
   String get sourceLetters => _source;
-
-  String _oldGameScore = '0';
-  String _gameScore = '0';
-  String get oldGameScore => _oldGameScore;
-  String get gameScore {
-    final score = GameScoreCalc.calcScore(possibleWords, foundWords).toString();
-    if (_gameScore != score) {
-      _oldGameScore = _gameScore;
-      _gameScore = score;
-    }
-    return score;
-  }
+  String get gameScore => GameScoreCalc.calcScore(possibleWords, foundWords).toString();
+  int get gameScoreInt => GameScoreCalc.calcScore(possibleWords, foundWords);
+    
 }
 
 class GameTimer {
