@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       title: 'Word Twist',
       theme: ThemeData(
           fontFamily: 'Quicksand',
-          colorScheme: ColorScheme.dark().copyWith(secondary: Colors.pinkAccent),
+          colorScheme: ColorScheme.dark().copyWith(secondary: Colors.blueAccent),
           brightness: Brightness.dark,
           primarySwatch: Colors.deepPurple),
       home: MyHomePage(title: 'Word Twist'),
@@ -116,27 +116,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
     final theme = Theme.of(context);
     final List<Widget> stackChildren = [
       Padding(
-        padding: EdgeInsets.only(bottom: 32, left: 16, right: 16, top: 42),
+        padding: EdgeInsets.only(bottom: 32, left: 16, right: 16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text(
-                      _timer.gameTime,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.display1,
-                    ),
-                    Points(
-                      // oldVal: twist.oldGameScore,
-                      currentVal: twist.gameScore,
-                    ),
-                  ],
-                )),
             Expanded(
                 child: Padding(
                     padding: EdgeInsets.only(bottom: 24, top: 24),
@@ -249,6 +233,23 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
     }
 
     return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          title: Text(
+            _timer.gameTime,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.display1,
+          ),
+          centerTitle: true,
+          actions: <Widget>[
+            Center(
+                child: Padding(
+                    padding: EdgeInsets.only(right: 16),
+                    child: Points(
+                      currentVal: twist.gameScore,
+                    )))
+          ],
+        ),
         drawer: Container(
           padding: EdgeInsets.all(32),
           child: Column(
@@ -324,38 +325,38 @@ class _AnimatedWordBoxState extends State<AnimatedWordBox> with SingleTickerProv
       animationController.forward();
     }
     return AnimatedBuilder(
-            animation: animationController,
-            builder: (BuildContext context, Widget child) {
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: Iterable.generate(widget.count, (n) {
-                  return Transform.scale(
-                      scale: widget.found ? animations[n].value : 1,
-                      child: Container(
-                          decoration: BoxDecoration(
-                              border: (n < widget.count - 1)
-                                  ? Border(top: side, bottom: side, left: side)
-                                  : Border(
-                                      top: side,
-                                      bottom: side,
-                                      left: side,
-                                      right: side,
-                                    )),
-                          child: Opacity(
-                              opacity: widget.found ? 2 - animations[n].value : 1,
-                              child: SizedBox.fromSize(
-                                  size: Size(20, 20),
-                                  child: Center(
-                                      child: Text(
-                                    animations[n].value >= 1.5 ? '' : widget.word[n],
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(fontSize: 14),
-                                  ))))));
-                }).toList(),
-              );
-            },
-          );
+      animation: animationController,
+      builder: (BuildContext context, Widget child) {
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: Iterable.generate(widget.count, (n) {
+            return Transform.scale(
+                scale: widget.found ? animations[n].value : 1,
+                child: Container(
+                    decoration: BoxDecoration(
+                        border: (n < widget.count - 1)
+                            ? Border(top: side, bottom: side, left: side)
+                            : Border(
+                                top: side,
+                                bottom: side,
+                                left: side,
+                                right: side,
+                              )),
+                    child: Opacity(
+                        opacity: widget.found ? 2 - animations[n].value : 1,
+                        child: SizedBox.fromSize(
+                            size: Size(20, 20),
+                            child: Center(
+                                child: Text(
+                              animations[n].value >= 1.5 ? '' : widget.word[n],
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 14),
+                            ))))));
+          }).toList(),
+        );
+      },
+    );
   }
 }
 
@@ -405,10 +406,9 @@ class GameOverOverlay extends StatelessWidget {
 }
 
 class Points extends StatefulWidget {
-  final String oldVal;
   final String currentVal;
 
-  Points({Key key, this.oldVal, this.currentVal}) : super(key: key);
+  Points({Key key, this.currentVal}) : super(key: key);
 
   @override
   _PointsState createState() => _PointsState();
