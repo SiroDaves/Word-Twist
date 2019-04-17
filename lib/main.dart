@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vector_math/vector_math_64.dart' show Vector3;
-import 'package:word_twist/data/twist.dart';
+import 'package:word_twist/game/twist.dart';
 import 'package:word_twist/data/word_repo.dart';
 import 'package:word_twist/ui/game_over_overlay.dart';
 import 'package:word_twist/ui/points.dart';
@@ -251,6 +251,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
               textAlign: TextAlign.center,
               style: theme.textTheme.display1,
             ),
+            Padding(padding: EdgeInsets.symmetric(horizontal: 4),),
             IconButton(
               icon: Icon(Icons.plus_one),
               onPressed: () {

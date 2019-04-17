@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:word_twist/data/twist.dart';
+import 'package:word_twist/game/twist.dart';
 
 class WordHolder extends StatefulWidget {
   final Function onTap;

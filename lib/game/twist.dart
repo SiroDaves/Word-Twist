@@ -167,7 +167,7 @@ class GameTimer {
 }
 
 class GameScoreCalc {
-  static const int _kMaxWords = 200;
+  static const int _kMaxWords = 150;
 
   static int calcScore(Iterable<String> possibleWords, Iterable<String> foundWords) {
     if (foundWords.isEmpty) return 0;
