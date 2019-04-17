@@ -37,6 +37,7 @@ class _AnimatedWordBoxState extends State<AnimatedWordBox> with SingleTickerProv
     if (widget.found) {
       animationController.forward();
     }
+    final size = MediaQuery.of(context).size.height < 600 ? 15.0 : 20.0;
     return AnimatedBuilder(
       animation: animationController,
       builder: (BuildContext context, Widget child) {
@@ -60,7 +61,7 @@ class _AnimatedWordBoxState extends State<AnimatedWordBox> with SingleTickerProv
                     child: Opacity(
                         opacity: widget.found ? 2 - animations[n].value : 1,
                         child: SizedBox.fromSize(
-                            size: Size(20, 20),
+                            size: Size(size, size),
                             child: Center(
                                 child: Text(
                               animations[n].value >= 1.5 ? '' : widget.word[n],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:word_twist/data/twist.dart';
 
 class WordHolder extends StatefulWidget {
   final Function onTap;
@@ -21,7 +22,7 @@ class _WordHolderState extends State<WordHolder> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     return AnimatedBuilder(
         animation: animationController,
-        builder: (c, v) => GestureDetector(
+        builder: (c, v) => InkWell(
             onTap: widget.onTap,
             child: Transform.scale(
                 scale: scaleAnimation.value,
@@ -32,22 +33,23 @@ class _WordHolderState extends State<WordHolder> with SingleTickerProviderStateM
                         borderRadius: BorderRadius.all(Radius.circular(10))),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: Iterable.generate(letters.length).map((n) {
-                        return Container(
-                            child: MaterialButton(
-                                minWidth: (MediaQuery.of(context).size.width - 86) / 6,
-                                onPressed: null,
-                                child: AnimatedDefaultTextStyle(
-                                  child: Text(
-                                    letters[n],
-                                  ),
-                                  duration: Duration(milliseconds: 250),
-                                  curve: Curves.easeInSine,
-                                  style: letters[n] == kSpace
-                                      ? TextStyle(fontSize: 0).copyWith(color: Colors.white)
-                                      : TextStyle(fontSize: 32).copyWith(color: Colors.white),
-                                )));
-                      }).toList(),
+                      children: Iterable.generate(letters.length)
+                          .map((n) => Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 4),
+                            child: Container(
+                              height: 46,
+                              child: Center(
+                                  child: AnimatedDefaultTextStyle(
+                                child: Text(
+                                  letters[n],
+                                ),
+                                duration: Duration(milliseconds: 250),
+                                curve: Curves.easeInSine,
+                                style: letters[n] == kSpace
+                                    ? TextStyle(fontSize: 0).copyWith(color: Colors.white)
+                                    : TextStyle(fontSize: 32).copyWith(color: Colors.white),
+                              )))))
+                          .toList(),
                     )))));
   }
 

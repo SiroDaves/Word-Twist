@@ -120,7 +120,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
     final theme = Theme.of(context);
     final List<Widget> stackChildren = [
       Padding(
-        padding: EdgeInsets.only(bottom: 32, left: 16, right: 16),
+        padding: EdgeInsets.only(bottom: 16, left: 16, right: 16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -141,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                           .toList(),
                     ))),
             Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8),
+                padding: EdgeInsets.symmetric(horizontal: 16),
                 child: WordHolder(
                   onTap: () {
                     int i = twist.builtWord.lastIndexWhere((s) => s != kSpace);
@@ -162,26 +162,28 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
               children: Iterable.generate(
                   twist.length,
                   (n) => Padding(
-                      padding: EdgeInsets.all(2),
-                      child: MaterialButton(
-                          shape: RoundedRectangleBorder(side: BorderSide(), borderRadius: BorderRadius.circular(20)),
-                          color: theme.colorScheme.secondary,
-                          minWidth: (MediaQuery.of(context).size.width - 64) / 6,
-                          height: 46,
-                          onPressed: () {
+                      padding: EdgeInsets.symmetric(horizontal: 4),
+                      child: InkWell(                          
+                          onTap: () {
                             if (twist.isSelected(n)) return;
                             setState(() {
                               twist.toggleSelect(n);
                             });
                           },
-                          child: AnimatedDefaultTextStyle(
-                              duration: const Duration(milliseconds: 250),
-                              curve: Curves.easeOutSine,
-                              style: twist.isSelected(n) ? const TextStyle(fontSize: 0) : const TextStyle(fontSize: 36),
-                              child: Text(
-                                twist[n],
-                                // style: TextStyle(fontSize: 36),
-                              ))))).toList(),
+                          child: Container(
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), border: Border.all(width: .4, color: Colors.white)),
+                              height: 46,
+                              width: 42,
+                              child: Center(child: AnimatedDefaultTextStyle(
+                                  duration: const Duration(milliseconds: 250),
+                                  curve: Curves.easeOutSine,
+                                  style: twist.isSelected(n)
+                                      ? const TextStyle(fontSize: 0)
+                                      : const TextStyle(fontSize: 32),
+                                  child: Text(
+                                    twist[n],
+                                    // style: TextStyle(fontSize: 36),
+                                  ))))))).toList(),
             ),
             Padding(
               padding: EdgeInsets.only(top: 16),
