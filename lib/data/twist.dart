@@ -148,6 +148,10 @@ class GameTimer {
     });
   }
 
+  void addTime(int seconds) {
+    _seconds += seconds;
+  }
+
   void stop() {
     dispose();
     _seconds = 0;

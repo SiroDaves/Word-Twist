@@ -163,7 +163,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                   twist.length,
                   (n) => Padding(
                       padding: EdgeInsets.symmetric(horizontal: 4),
-                      child: InkWell(                          
+                      child: InkWell(
                           onTap: () {
                             if (twist.isSelected(n)) return;
                             setState(() {
@@ -171,19 +171,22 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                             });
                           },
                           child: Container(
-                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), border: Border.all(width: .4, color: Colors.white)),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(width: .4, color: Colors.white)),
                               height: 46,
                               width: 42,
-                              child: Center(child: AnimatedDefaultTextStyle(
-                                  duration: const Duration(milliseconds: 250),
-                                  curve: Curves.easeOutSine,
-                                  style: twist.isSelected(n)
-                                      ? const TextStyle(fontSize: 0)
-                                      : const TextStyle(fontSize: 32),
-                                  child: Text(
-                                    twist[n],
-                                    // style: TextStyle(fontSize: 36),
-                                  ))))))).toList(),
+                              child: Center(
+                                  child: AnimatedDefaultTextStyle(
+                                      duration: const Duration(milliseconds: 250),
+                                      curve: Curves.easeOutSine,
+                                      style: twist.isSelected(n)
+                                          ? const TextStyle(fontSize: 0)
+                                          : const TextStyle(fontSize: 32),
+                                      child: Text(
+                                        twist[n],
+                                        // style: TextStyle(fontSize: 36),
+                                      ))))))).toList(),
             ),
             Padding(
               padding: EdgeInsets.only(top: 16),
@@ -242,11 +245,22 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
 
     return Scaffold(
         appBar: AppBar(
-          title: Text(
-            _timer.gameTime,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.display1,
-          ),
+          title: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Text(
+              _timer.gameTime,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.display1,
+            ),
+            IconButton(
+              icon: Icon(Icons.plus_one),
+              onPressed: () {
+                _timer.addTime(60);
+                setState(() {
+                  
+                });
+              },
+            ),
+          ]),
           centerTitle: true,
           actions: <Widget>[
             Center(
