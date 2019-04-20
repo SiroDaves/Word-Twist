@@ -1,10 +1,13 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vector_math/vector_math_64.dart' show Vector3;
+import 'package:word_twist/data/user_prefs.dart';
 import 'package:word_twist/game/twist.dart';
 import 'package:word_twist/data/word_repo.dart';
+import 'package:word_twist/game/user_prefs_impl.dart';
 import 'package:word_twist/ui/game_over_overlay.dart';
 import 'package:word_twist/ui/points.dart';
 import 'package:word_twist/ui/word_box.dart';
@@ -44,7 +47,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, TickerProviderStateMixin {
-  TwistGame twist = new TwistGame(new WordsDataSource());
+  final TwistGame twist = new TwistGame(new WordsDataSource());
+  final UserPrefs _userPrefs = new UserPrefsImpl();
+
   bool _isLoading = false;
   GameTimer _timer;
   AnimationController _animationController;
@@ -251,15 +256,19 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
               textAlign: TextAlign.center,
               style: theme.textTheme.display1,
             ),
-            Padding(padding: EdgeInsets.symmetric(horizontal: 4),),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 4),
+            ),
             IconButton(
               icon: Icon(Icons.plus_one),
-              onPressed: _timer.seconds > 0 ? () {                
-                _timer.addTime(60);
-                setState(() {
-                  
-                });
-              } : null,
+              onPressed: _timer.seconds > 0
+                  ? () async {
+                      if (await _confirmCoinSpend()) {
+                        _timer.addTime(60);
+                        setState(() {});
+                      }
+                    }
+                  : null,
             ),
           ]),
           centerTitle: true,
@@ -307,4 +316,58 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                   children: stackChildren,
                 )));
   }
+
+  Future<bool> _confirmCoinSpend() {
+    if (_userPrefs.getBool(_kDontAskAgianCoins) ?? false) {
+      return Future.value(true);
+    } else {
+      var checked = false;
+      var key = GlobalKey();
+      final completer = new Completer<bool>();
+      showDialog(
+        context: context,
+        builder: (c) {
+          return AlertDialog(
+            key: key,
+            title: const Text("Extend Time"),
+            content: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+              const Text("Do you want to spend 5 coins to extend game time by 1 minute?"),
+              Row(
+                children: <Widget>[
+                  Checkbox(
+                    value: checked,
+                    onChanged: (v) {
+                      key.currentState.setState(() {
+                        checked = v;
+                      });
+                    },
+                  ),
+                  const Text("Don't ask again")
+                ],
+              )
+            ]),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("No"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  completer.complete(false);
+                },
+              ),
+              FlatButton(
+                child: Text("Yes"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  completer.complete(true);
+                },
+              ),
+            ],
+          );
+        },
+      );
+      return completer.future;
+    }
+  }
 }
+
+const _kDontAskAgianCoins = 'DontAskAgainCoins';
