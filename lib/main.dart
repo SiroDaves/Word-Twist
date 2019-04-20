@@ -254,12 +254,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
             Padding(padding: EdgeInsets.symmetric(horizontal: 4),),
             IconButton(
               icon: Icon(Icons.plus_one),
-              onPressed: () {
+              onPressed: _timer.seconds > 0 ? () {                
                 _timer.addTime(60);
                 setState(() {
                   
                 });
-              },
+              } : null,
             ),
           ]),
           centerTitle: true,

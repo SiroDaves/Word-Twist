@@ -123,6 +123,8 @@ class GameTimer {
   StreamSubscription _streamSubscription;
   bool _paused = false;
 
+  int get seconds => _seconds;
+
   String get gameTime {
     int mins = ((_seconds % 3600) ~/ 60);
     int seconds = _seconds % 60;
