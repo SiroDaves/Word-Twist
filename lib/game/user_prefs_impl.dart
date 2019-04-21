@@ -20,8 +20,10 @@ class UserPrefsImpl implements UserPrefs {
       case int:
         sharedPrefs.setInt(key, value as int);
         break;
-      default:
-        throw new ArgumentError('${T.runtimeType} not implemented');
+      case bool:
+        sharedPrefs.setBool(key, value as bool);
+        break;
+      default:        
     }
   }
 }

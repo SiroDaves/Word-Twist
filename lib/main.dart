@@ -320,11 +320,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
   Future<bool> _confirmCoinSpend() {
     if (_userPrefs.getBool(_kDontAskAgianCoins) ?? false) {
       return Future.value(true);
-    } else {      
+    } else {
       final completer = new Completer<bool>();
       showDialog(
         context: context,
-        builder: (c) => SpendCoinsAlertDialog(completer: completer,),
+        builder: (c) => SpendCoinsAlertDialog(
+              completer: completer,
+              checkedCallback: (v) => _userPrefs.setValue(_kDontAskAgianCoins, true),
+            ),
       );
       return completer.future;
     }
@@ -335,8 +338,9 @@ const _kDontAskAgianCoins = 'DontAskAgainCoins';
 
 class SpendCoinsAlertDialog extends StatefulWidget {
   final Completer<bool> completer;
+  final Function(bool) checkedCallback;
 
-  const SpendCoinsAlertDialog({Key key, this.completer}) : super(key: key);
+  const SpendCoinsAlertDialog({Key key, this.completer, this.checkedCallback}) : super(key: key);
 
   @override
   _SpendCoinsAlertDialogState createState() => _SpendCoinsAlertDialogState();
@@ -358,6 +362,7 @@ class _SpendCoinsAlertDialogState extends State<SpendCoinsAlertDialog> {
                 setState(() {
                   checked = v;
                 });
+                widget.checkedCallback(v);
               },
             ),
             const Text("Don't ask again")

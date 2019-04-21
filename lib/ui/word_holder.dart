@@ -28,8 +28,8 @@ class _WordHolderState extends State<WordHolder> with SingleTickerProviderStateM
                 scale: scaleAnimation.value,
                 child: Container(
                     decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white, width: borderAnimation.value),
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
+                        border: Border.all(color: Colors.white24, width: borderAnimation.value),
+                        borderRadius: BorderRadius.all(Radius.circular(5))),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: Iterable.generate(letters.length)
