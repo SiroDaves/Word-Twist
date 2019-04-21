@@ -1,6 +1,6 @@
 import 'package:word_twist/data/user_prefs.dart';
 
-const _kPoints = 10;
+const _kPoints = 100;
 const _kCoinsKey = 'coins';
 const kCoinsForOneMin = 5;
 
