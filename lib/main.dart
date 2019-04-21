@@ -320,50 +320,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
   Future<bool> _confirmCoinSpend() {
     if (_userPrefs.getBool(_kDontAskAgianCoins) ?? false) {
       return Future.value(true);
-    } else {
-      var checked = false;
-      var key = GlobalKey();
+    } else {      
       final completer = new Completer<bool>();
       showDialog(
         context: context,
-        builder: (c) {
-          return AlertDialog(
-            key: key,
-            title: const Text("Extend Time"),
-            content: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              const Text("Do you want to spend 5 coins to extend game time by 1 minute?"),
-              Row(
-                children: <Widget>[
-                  Checkbox(
-                    value: checked,
-                    onChanged: (v) {
-                      key.currentState.setState(() {
-                        checked = v;
-                      });
-                    },
-                  ),
-                  const Text("Don't ask again")
-                ],
-              )
-            ]),
-            actions: <Widget>[
-              FlatButton(
-                child: Text("No"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  completer.complete(false);
-                },
-              ),
-              FlatButton(
-                child: Text("Yes"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  completer.complete(true);
-                },
-              ),
-            ],
-          );
-        },
+        builder: (c) => SpendCoinsAlertDialog(completer: completer,),
       );
       return completer.future;
     }
@@ -371,3 +332,54 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
 }
 
 const _kDontAskAgianCoins = 'DontAskAgainCoins';
+
+class SpendCoinsAlertDialog extends StatefulWidget {
+  final Completer<bool> completer;
+
+  const SpendCoinsAlertDialog({Key key, this.completer}) : super(key: key);
+
+  @override
+  _SpendCoinsAlertDialogState createState() => _SpendCoinsAlertDialogState();
+}
+
+class _SpendCoinsAlertDialogState extends State<SpendCoinsAlertDialog> {
+  bool checked = false;
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text("Extend Time"),
+      content: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+        const Text("Do you want to spend 5 coins to extend game time by 1 minute?"),
+        Row(
+          children: <Widget>[
+            Checkbox(
+              value: checked,
+              onChanged: (v) {
+                setState(() {
+                  checked = v;
+                });
+              },
+            ),
+            const Text("Don't ask again")
+          ],
+        )
+      ]),
+      actions: <Widget>[
+        FlatButton(
+          child: Text("No"),
+          onPressed: () {
+            Navigator.of(context).pop();
+            widget.completer.complete(false);
+          },
+        ),
+        FlatButton(
+          child: Text("Yes"),
+          onPressed: () {
+            Navigator.of(context).pop();
+            widget.completer.complete(true);
+          },
+        ),
+      ],
+    );
+  }
+}
