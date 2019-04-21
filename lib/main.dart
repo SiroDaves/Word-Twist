@@ -3,8 +3,10 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vector_math/vector_math_64.dart' show Vector3;
 import 'package:word_twist/data/user_prefs.dart';
+import 'package:word_twist/game/coins_store.dart';
 import 'package:word_twist/game/twist.dart';
 import 'package:word_twist/data/word_repo.dart';
 import 'package:word_twist/game/user_prefs_impl.dart';
@@ -18,6 +20,8 @@ void main() async {
   if (!await dataSource.isDbLoaded()) {
     await dataSource.loadDatabase();
   }
+  await SharedPreferences.getInstance();
+  await UserPrefsImpl.instance().init();
   runApp(MyApp());
 }
 
@@ -28,10 +32,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Word Twist',
       theme: ThemeData(
-          fontFamily: 'Quicksand',
-          colorScheme: ColorScheme.dark().copyWith(secondary: Colors.blueAccent),
-          brightness: Brightness.dark,
-          primarySwatch: Colors.deepPurple),
+        fontFamily: 'Quicksand',
+        colorScheme: ColorScheme.dark().copyWith(secondary: Colors.blueAccent),
+        brightness: Brightness.dark,
+        primarySwatch: Colors.deepPurple,
+        toggleableActiveColor: Colors.purpleAccent,
+        accentColor: Colors.blueAccent,
+      ),
       home: MyHomePage(title: 'Word Twist'),
     );
   }
@@ -48,7 +55,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, TickerProviderStateMixin {
   final TwistGame twist = new TwistGame(new WordsDataSource());
-  final UserPrefs _userPrefs = new UserPrefsImpl();
+  final UserPrefs _userPrefs = UserPrefsImpl.instance();
+  CoinsStore _coinsStore;
 
   bool _isLoading = false;
   GameTimer _timer;
@@ -58,6 +66,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
 
   @override
   void initState() {
+    _coinsStore = new CoinsStore(_userPrefs);
     WidgetsBinding.instance.addObserver(this);
     _shakeController = new AnimationController(vsync: this, duration: const Duration(milliseconds: 500))
       ..addListener(() {
@@ -122,7 +131,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final theme = Theme.of(context);    
     final List<Widget> stackChildren = [
       Padding(
         padding: EdgeInsets.only(bottom: 16, left: 16, right: 16),
@@ -227,6 +236,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                         twist.resetSelection();
                         twist.gameScore;
                       });
+                      if (_coinsStore.scoreChanged(twist.gameScoreInt)) {
+                        
+                      }
                     } else {
                       _shakeController.reset();
                       _shakeController.forward();
@@ -264,6 +276,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
               onPressed: _timer.seconds > 0
                   ? () async {
                       if (await _confirmCoinSpend()) {
+                        _coinsStore.consumeCoins(kCoinsForOneMin);
                         _timer.addTime(60);
                         setState(() {});
                       }
@@ -282,9 +295,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
           ],
         ),
         drawer: Container(
-          padding: EdgeInsets.all(32),
+          padding: EdgeInsets.only(top: 64, left: 32, right: 32, bottom: 32),
           child: Column(
             children: <Widget>[
+              Container(
+                  child: Text(
+                'Word Twist',
+                style: theme.textTheme.display2,
+              )),
               RaisedButton(
                 child: Text('New Game'),
                 onPressed: () {

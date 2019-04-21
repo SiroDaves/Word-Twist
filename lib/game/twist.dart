@@ -119,7 +119,7 @@ class GameTimer {
   final Function _onTimeExpired;
   final Function _onTimeTick;
   final int time;
-  int _seconds = 3 * 60;
+  int _seconds = 2 * 60;
   StreamSubscription _streamSubscription;
   bool _paused = false;
 
@@ -135,7 +135,7 @@ class GameTimer {
 
   bool get isPaused => _paused;
 
-  GameTimer(this._onTimeExpired, this._onTimeTick, [this.time = 3 * 60]);
+  GameTimer(this._onTimeExpired, this._onTimeTick, [this.time = 2 * 60]);
 
   void restartTimer() {
     dispose();

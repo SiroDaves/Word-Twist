@@ -3,9 +3,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class UserPrefsImpl implements UserPrefs {
   SharedPreferences sharedPrefs;
+  static UserPrefsImpl _instance;
 
-  UserPrefsImpl() {
-    SharedPreferences.getInstance().then((v) => sharedPrefs = v);
+  bool get isLoaded => sharedPrefs != null;
+
+  static UserPrefsImpl instance() {
+    if (_instance == null) {
+      _instance = UserPrefsImpl();
+    }
+    return _instance;
+  }
+
+  Future init() async {
+    sharedPrefs = await SharedPreferences.getInstance();
   }
 
   @override

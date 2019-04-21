@@ -32,7 +32,7 @@ class GameOverOverlay extends StatelessWidget {
               child: Container(
                   width: _widthTween.value,
                   height: _heightTween.value,
-                  decoration: BoxDecoration(color: Colors.black, shape: BoxShape.rectangle),
+                  decoration: BoxDecoration(color: Colors.black, shape: _widthTween.value < screenSize.width ? BoxShape.circle : BoxShape.rectangle),
                   child: Center(
                       child: Text(
                     'Game Over',
