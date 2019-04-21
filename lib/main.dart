@@ -10,6 +10,7 @@ import 'package:word_twist/game/coins_store.dart';
 import 'package:word_twist/game/twist.dart';
 import 'package:word_twist/data/word_repo.dart';
 import 'package:word_twist/game/user_prefs_impl.dart';
+import 'package:word_twist/ui/coins_overlay.dart';
 import 'package:word_twist/ui/game_over_overlay.dart';
 import 'package:word_twist/ui/points.dart';
 import 'package:word_twist/ui/word_box.dart';
@@ -59,10 +60,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
   CoinsStore _coinsStore;
 
   bool _isLoading = false;
+  bool _coinsEarned = false;
   GameTimer _timer;
   AnimationController _animationController;
   Animation<double> _animation;
   AnimationController _shakeController;
+  AnimationController _coinsController;
 
   @override
   void initState() {
@@ -73,6 +76,15 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
         setState(() {});
       });
     _animationController = new AnimationController(duration: const Duration(milliseconds: 1500), vsync: this);
+    _coinsController = new AnimationController(duration: const Duration(milliseconds: 1000), vsync: this)
+      ..addStatusListener((s) {
+        if (s == AnimationStatus.completed) {
+          setState(() {
+            _coinsEarned = false;
+          });
+          _coinsController.value = 0;
+        }
+      });
     _animation = CurvedAnimation(parent: _animationController, curve: Curves.easeInOutSine);
     _timer = new GameTimer(_onTimeExpired, _onTimeTick);
     _createNewGame();
@@ -85,6 +97,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
     _timer.dispose();
     _shakeController.dispose();
     _animationController.dispose();
+    _coinsController.dispose();
     super.dispose();
   }
 
@@ -97,6 +110,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
       setState(() {
         _isLoading = false;
       });
+      _coinsStore.reset();
       _timer.restartTimer();
     });
   }
@@ -131,7 +145,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);    
+    final theme = Theme.of(context);
     final List<Widget> stackChildren = [
       Padding(
         padding: EdgeInsets.only(bottom: 16, left: 16, right: 16),
@@ -236,8 +250,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                         twist.resetSelection();
                         twist.gameScore;
                       });
-                      if (_coinsStore.scoreChanged(twist.gameScoreInt)) {
-                        
+                      final coins = _coinsStore.scoreChanged(twist.gameScoreInt);
+                      if (coins > 0) {
+                        setState(() {
+                          _coinsEarned = true;
+                          _coinsController.forward();
+                        });
                       }
                     } else {
                       _shakeController.reset();
@@ -252,6 +270,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
         ),
       )
     ];
+
+    if (_coinsEarned) {
+      stackChildren.add(CoinsOverlay(
+        controller: _coinsController,
+        screenSize: MediaQuery.of(context).size,
+      ));
+    }
 
     if (_timer.isTimeExpired) {
       stackChildren.add(GameOverOverlay(
@@ -303,6 +328,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                 'Word Twist',
                 style: theme.textTheme.display2,
               )),
+              Text(_coinsStore.coins.toString(), style: theme.textTheme.display2,),
               RaisedButton(
                 child: Text('New Game'),
                 onPressed: () {
@@ -344,7 +370,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
         context: context,
         builder: (c) => SpendCoinsAlertDialog(
               completer: completer,
-              checkedCallback: (v) => _userPrefs.setValue(_kDontAskAgianCoins, true),
+              checkedCallback: (v) => _userPrefs.setBool(_kDontAskAgianCoins, true),
+              coins: _coinsStore.coins,
             ),
       );
       return completer.future;
@@ -357,8 +384,9 @@ const _kDontAskAgianCoins = 'DontAskAgainCoins';
 class SpendCoinsAlertDialog extends StatefulWidget {
   final Completer<bool> completer;
   final Function(bool) checkedCallback;
+  final int coins;
 
-  const SpendCoinsAlertDialog({Key key, this.completer, this.checkedCallback}) : super(key: key);
+  const SpendCoinsAlertDialog({Key key, this.completer, this.checkedCallback, this.coins}) : super(key: key);
 
   @override
   _SpendCoinsAlertDialogState createState() => _SpendCoinsAlertDialogState();
@@ -371,7 +399,7 @@ class _SpendCoinsAlertDialogState extends State<SpendCoinsAlertDialog> {
     return AlertDialog(
       title: const Text("Extend Time"),
       content: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-        const Text("Do you want to spend 5 coins to extend game time by 1 minute?"),
+        Text("Do you want to spend 5 coins to extend game time by 1 minute?\n\nCurrently you have ${widget.coins} coins."),
         Row(
           children: <Widget>[
             Checkbox(

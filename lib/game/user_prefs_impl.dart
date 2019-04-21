@@ -25,15 +25,12 @@ class UserPrefsImpl implements UserPrefs {
   bool getBool(String key) => sharedPrefs.getBool(key);
 
   @override
-  void setValue<T>(String key, T value) {
-    switch (T.runtimeType) {
-      case int:
-        sharedPrefs.setInt(key, value as int);
-        break;
-      case bool:
-        sharedPrefs.setBool(key, value as bool);
-        break;
-      default:        
-    }
+  void setBool(String key, bool value) {
+    sharedPrefs.setBool(key, value);
+  }
+
+  @override
+  void setInt(String key, int value) {
+    sharedPrefs.setInt(key, value);
   }
 }

@@ -1,6 +1,6 @@
 import 'package:word_twist/data/user_prefs.dart';
 
-const _kPoints = 100;
+const _kPoints = 10;
 const _kCoinsKey = 'coins';
 const kCoinsForOneMin = 5;
 
@@ -16,19 +16,19 @@ class CoinsStore {
     _coins = _userPrefs.getInt(_kCoinsKey) ?? 20;
   }
 
-  bool scoreChanged(int newScore) {
-    final coins = newScore ~/ _kPoints;
-    final old = _lastScore == 0 ? 0 : _lastScore ~/ _lastScore;
+  int scoreChanged(int newScore) {
+    final newVal = newScore ~/ _kPoints;
+    final oldVal = _lastScore == 0 ? 0 : _lastScore ~/ _lastScore;
     _lastScore = newScore;
-    if (coins > old) {
-      _coinEarned();
+    if (newVal > oldVal) {
+      _coinEarned(newVal - oldVal);
     }
-    return coins > old;
+    return newVal - oldVal;
   }
 
-  void _coinEarned() {    
-    _coins++;
-    _userPrefs.setValue(_kCoinsKey, _coins);
+  void _coinEarned(int amount) {    
+    _coins += amount;
+    _userPrefs.setInt(_kCoinsKey, _coins);
   }
 
   bool consumeCoins(int amount) {
@@ -36,7 +36,11 @@ class CoinsStore {
       return false;
     }
     _coins -= amount;
-    _userPrefs.setValue(_kCoinsKey, _coins);
+    _userPrefs.setInt(_kCoinsKey, _coins);
     return true;
+  }
+
+  void reset() {
+    _lastScore = 0;
   }
 }
