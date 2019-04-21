@@ -18,7 +18,7 @@ class CoinsStore {
 
   int scoreChanged(int newScore) {
     final newVal = newScore ~/ _kPoints;
-    final oldVal = _lastScore == 0 ? 0 : _lastScore ~/ _lastScore;
+    final oldVal = _lastScore == 0 ? 0 : _lastScore ~/ _kPoints;
     _lastScore = newScore;
     if (newVal > oldVal) {
       _coinEarned(newVal - oldVal);

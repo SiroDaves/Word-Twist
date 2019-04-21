@@ -62,10 +62,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
   bool _isLoading = false;
   bool _coinsEarned = false;
   GameTimer _timer;
-  AnimationController _animationController;
-  Animation<double> _animation;
+
+  Animation<double> _gameOverAnimation;
+  Animation<double> _timerScaleAnimation;
+
+  AnimationController _gameOverController;
   AnimationController _shakeController;
   AnimationController _coinsController;
+  AnimationController _timerScaleController;
 
   @override
   void initState() {
@@ -75,8 +79,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
       ..addListener(() {
         setState(() {});
       });
-    _animationController = new AnimationController(duration: const Duration(milliseconds: 1500), vsync: this);
-    _coinsController = new AnimationController(duration: const Duration(milliseconds: 1000), vsync: this)
+    _gameOverController = new AnimationController(duration: const Duration(milliseconds: 1500), vsync: this);
+    _coinsController = new AnimationController(duration: const Duration(milliseconds: 1200), vsync: this)
       ..addStatusListener((s) {
         if (s == AnimationStatus.completed) {
           setState(() {
@@ -85,7 +89,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
           _coinsController.value = 0;
         }
       });
-    _animation = CurvedAnimation(parent: _animationController, curve: Curves.easeInOutSine);
+    _gameOverAnimation = CurvedAnimation(parent: _gameOverController, curve: Curves.easeInOutSine);
+    _timerScaleController = AnimationController(duration: const Duration(milliseconds: 400), vsync: this)
+      ..addStatusListener((s) {
+        if (s == AnimationStatus.completed && _timer.seconds > 0) {
+          _timerScaleController.reverse();
+        }
+      });
+    _timerScaleAnimation = Tween<double>(begin: 1, end: 1.2).animate(_timerScaleController);
     _timer = new GameTimer(_onTimeExpired, _onTimeTick);
     _createNewGame();
     super.initState();
@@ -96,8 +107,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
     WidgetsBinding.instance.removeObserver(this);
     _timer.dispose();
     _shakeController.dispose();
-    _animationController.dispose();
+    _gameOverController.dispose();
     _coinsController.dispose();
+    _timerScaleController.dispose();
     super.dispose();
   }
 
@@ -119,14 +131,17 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
     setState(() {
       _timer.isTimeExpired;
     });
-    if (_animationController.status == AnimationStatus.completed) _animationController.reset();
-    _animationController.forward();
+    if (_gameOverController.status == AnimationStatus.completed) _gameOverController.reset();
+    _gameOverController.forward();
   }
 
   void _onTimeTick() {
     setState(() {
       _timer.gameTime;
     });
+    if (_timer.seconds < 60 && _timerScaleController.status == AnimationStatus.dismissed) {
+      _timerScaleController.forward();
+    }
   }
 
   @override
@@ -280,23 +295,31 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
 
     if (_timer.isTimeExpired) {
       stackChildren.add(GameOverOverlay(
-        controller: _animation,
+        controller: _gameOverAnimation,
         screenSize: MediaQuery.of(context).size,
       ));
     }
 
     return Scaffold(
         appBar: AppBar(
-          title: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Text(
-              _timer.gameTime,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.display1,
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4),
-            ),
-            IconButton(
+          title: Row(
+            mainAxisSize: MainAxisSize.max,
+             children: [
+            SizedBox(
+                width: MediaQuery.of(context).size.width / 3,
+                child: Padding(padding: EdgeInsets.only(left: 32),child: AnimatedBuilder(
+                    animation: _timerScaleController,
+                    builder: (c, v) => Transform.scale(
+                          child: Text(
+                            _timer.gameTime,
+                            textAlign: TextAlign.right,
+                            style: theme.textTheme.display1,
+                          ),
+                          scale: _timerScaleAnimation.value,
+                        )))),            
+            SizedBox(
+                width: MediaQuery.of(context).size.width / 4,
+                child: IconButton(
               icon: Icon(Icons.plus_one),
               onPressed: _timer.seconds > 0
                   ? () async {
@@ -307,7 +330,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                       }
                     }
                   : null,
-            ),
+            )),
           ]),
           centerTitle: true,
           actions: <Widget>[
@@ -328,7 +351,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                 'Word Twist',
                 style: theme.textTheme.display2,
               )),
-              Text(_coinsStore.coins.toString(), style: theme.textTheme.display2,),
+              Text(
+                _coinsStore.coins.toString(),
+                style: theme.textTheme.display2,
+              ),
               RaisedButton(
                 child: Text('New Game'),
                 onPressed: () {
@@ -399,7 +425,8 @@ class _SpendCoinsAlertDialogState extends State<SpendCoinsAlertDialog> {
     return AlertDialog(
       title: const Text("Extend Time"),
       content: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-        Text("Do you want to spend 5 coins to extend game time by 1 minute?\n\nCurrently you have ${widget.coins} coins."),
+        Text(
+            "Do you want to spend 5 coins to extend game time by 1 minute?\n\nCurrently you have ${widget.coins} coins."),
         Row(
           children: <Widget>[
             Checkbox(

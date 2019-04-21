@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 class CoinsOverlay extends StatelessWidget {
   CoinsOverlay({Key key, this.controller, this.screenSize})
       : _heightTween = Tween<double>(begin: 0, end: screenSize.height)
-            .animate(CurvedAnimation(parent: controller, curve: Curves.easeIn)),
+            .animate(CurvedAnimation(parent: controller, curve: Curves.easeOutCubic)),
         _widthTween = Tween<double>(begin: 0, end: screenSize.width)
-            .animate(CurvedAnimation(parent: controller, curve: Curves.easeIn)),
+            .animate(CurvedAnimation(parent: controller, curve: Curves.easeOutCubic)),
         _opacityTween =
-            Tween<double>(begin: 0, end: 0.9).animate(CurvedAnimation(parent: controller, curve: Curves.easeIn)),
-        _fontSizeTween = Tween<double>(begin: 0, end: 46)
+            Tween<double>(begin: 0.4, end: 0.95).animate(CurvedAnimation(parent: controller, curve: Curves.easeOutCubic)),
+        _fontSizeTween = Tween<double>(begin: 0, end: 56)
             .animate(CurvedAnimation(parent: controller, curve: Interval(0.4, 1, curve: Curves.bounceOut))),
         super(key: key);
   final Animation<double> _opacityTween;
@@ -30,10 +30,10 @@ class CoinsOverlay extends StatelessWidget {
               opacity: _opacityTween.value,
               child: Container(
                 width: _widthTween.value,
-                height: _heightTween.value,
+                height: _widthTween.value,
                 decoration: BoxDecoration(
-                    color: Colors.black,
-                    shape: _widthTween.value < screenSize.width ? BoxShape.circle : BoxShape.rectangle),
+                    color: Colors.blue,
+                    shape: BoxShape.circle ),
                 child: Center(
                   child: Text(
                     '+ 1 Coin',
