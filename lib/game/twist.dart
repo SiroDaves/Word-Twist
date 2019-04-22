@@ -14,6 +14,7 @@ class TwistGame {
   final List<String> builtWord = [];
   final Set<String> foundWords = new Set();
   final List<String> possibleWords = [];
+  final GameScore gameScore = new GameScore();
 
   String _letters = '';
   
@@ -22,12 +23,10 @@ class TwistGame {
   operator [](int i) => this._letters[i];
 
   int get length => _letters.length;
-  String get sourceLetters => _letters;
-  String get gameScore => GameScoreCalc.calcScore(possibleWords, foundWords).toString();
-  int get gameScoreInt => GameScoreCalc.calcScore(possibleWords, foundWords);
+  String get sourceLetters => _letters; 
   bool isSelected(int i) => selectedIndexes[i];
 
-  Future createNewGame() async {
+  Future createNewGame({GameMode gameMode = GameMode.normal}) async {    
     foundWords.clear();
     _letters = await _repository.getRandomWord();
     twistWord();
@@ -35,6 +34,7 @@ class TwistGame {
     sortedLetters.sort((a, b) => a.codeUnitAt(0).compareTo(b.codeUnitAt(0)));
     await _buildPossibleWords(sortedLetters);
     resetSelection();
+    gameScore.newGame(gameMode, possibleWords);
   }
 
   Future _buildPossibleWords(List<String> sortedLetters) async {
@@ -118,6 +118,7 @@ class GameTimer {
   final Function _onTimeExpired;
   final Function _onTimeTick;
   final int time;
+
   int _seconds = 2 * 60;
   StreamSubscription _streamSubscription;
   bool _paused = false;
@@ -131,7 +132,6 @@ class GameTimer {
   }
 
   bool get isTimeExpired => _seconds == 0;
-
   bool get isPaused => _paused;
 
   GameTimer(this._onTimeExpired, this._onTimeTick, [this.time = 2 * 60]);
@@ -167,8 +167,33 @@ class GameTimer {
   }
 }
 
-class GameScoreCalc {
+class GameScore {
   static const int _kMaxWords = 170;
+
+  int _score = 0;
+  GameMode _gameMode;
+  int _scoreMultiplier;
+
+  int get score => _score;
+ 
+  void newGame(GameMode gameMode, List<String> possibleWords) {
+    _score = 0;
+    _gameMode = gameMode;
+    _scoreMultiplier = (1 / (possibleWords.length / _kMaxWords)).round();
+    if (gameMode == GameMode.hard) {
+      _scoreMultiplier += (_scoreMultiplier ~/ 2);
+    }
+  }
+
+  void onWordFound(String word) {
+    _score += word.length * _scoreMultiplier;
+  }
+
+  void onWordMissed(String falseWord) {
+    if (_gameMode == GameMode.hard) {
+      _score -= falseWord.length * _scoreMultiplier;
+    }
+  }
 
   static int calcScore(Iterable<String> possibleWords, Iterable<String> foundWords, {GameMode gameMode = GameMode.normal}) {
     if (foundWords.isEmpty || gameMode == GameMode.unlimited) return 0;

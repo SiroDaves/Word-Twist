@@ -200,7 +200,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                     }
                   },
                   builtWord: twist.builtWord,
-                  points: twist.gameScoreInt,
+                  points: twist.gameScore.score,
                 )),
             Padding(
               padding: EdgeInsets.only(top: 24),
@@ -264,13 +264,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                   child: Text('Enter'),
                   onPressed: () {
                     final w = twist.builtWord.join().toLowerCase().trim();
-                    if (twist.possibleWords.contains(w)) {
+                    if (w.isEmpty) return;
+                    if (twist.possibleWords.contains(w)) {                      
                       setState(() {
+                        twist.gameScore.onWordFound(w);
                         twist.foundWords.add(w);
                         twist.resetSelection();
-                        twist.gameScore;
                       });
-                      final coins = _coinsStore.scoreChanged(twist.gameScoreInt);
+                      final coins = _coinsStore.scoreChanged(twist.gameScore.score);
                       if (coins > 0) {
                         setState(() {
                           _coinsEarned = true;
@@ -278,6 +279,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                         });
                       }
                     } else {
+                      setState(() {
+                        twist.gameScore.onWordMissed(w);
+                      });
                       _shakeController.reset();
                       _shakeController.forward();
                     }
@@ -342,8 +346,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
             Center(
                 child: Padding(
                     padding: EdgeInsets.only(right: 16),
-                    child: Points(
-                      currentVal: twist.gameScore,
+                    child: GameScoreWidget(
+                      score: twist.gameScore.score.toString(),
                     )))
           ],
         ),

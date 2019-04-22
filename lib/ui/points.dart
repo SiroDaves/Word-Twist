@@ -1,16 +1,16 @@
 
 import 'package:flutter/material.dart';
 
-class Points extends StatefulWidget {
-  final String currentVal;
+class GameScoreWidget extends StatefulWidget {
+  final String score;
 
-  Points({Key key, this.currentVal}) : super(key: key);
+  GameScoreWidget({Key key, this.score}) : super(key: key);
 
   @override
-  _PointsState createState() => _PointsState();
+  _GameScoreWidgetState createState() => _GameScoreWidgetState();
 }
 
-class _PointsState extends State<Points> with SingleTickerProviderStateMixin {
+class _GameScoreWidgetState extends State<GameScoreWidget> with SingleTickerProviderStateMixin {
   AnimationController animationController;
   Animation<double> zoomAnimation;
   String score = '';
@@ -33,8 +33,8 @@ class _PointsState extends State<Points> with SingleTickerProviderStateMixin {
   }
 
   @override
-  void didUpdateWidget(Points oldWidget) {
-    if (oldWidget.currentVal != widget.currentVal) {
+  void didUpdateWidget(GameScoreWidget oldWidget) {
+    if (oldWidget.score != widget.score) {
       animationController
         ..value = 0
         ..forward();
@@ -44,13 +44,13 @@ class _PointsState extends State<Points> with SingleTickerProviderStateMixin {
 
   @override
   void initState() {
-    score = widget.currentVal;
+    score = widget.score;
     animationController = new AnimationController(duration: const Duration(milliseconds: 400), vsync: this)
       ..addStatusListener((s) {
         if (s == AnimationStatus.completed) {
           animationController.reverse();
           setState(() {
-            score = widget.currentVal;
+            score = widget.score;
           });
         }
       });
