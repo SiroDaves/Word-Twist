@@ -94,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
       ..addStatusListener((s) {
         if (s == AnimationStatus.completed && !_gameTimer.isTimeExpired) {
           _timerScaleController.reverse();
-        } else if (_gameTimer.isTimeExpired) {          
+        } else if (_gameTimer.isTimeExpired) {
           setState(() {
             _timerScaleController.value = 0;
           });
@@ -350,18 +350,47 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
         drawer: Container(
           padding: EdgeInsets.only(top: 64, left: 32, right: 32, bottom: 32),
           child: Column(
-            children: <Widget>[              
+            children: <Widget>[
               Text(
                 _coinsStore.coins.toString(),
-                style: theme.textTheme.display2,
+                style: theme.textTheme.subhead,
               ),
-              RaisedButton(
-                child: Text('New Game'),
-                onPressed: () {
-                  _createNewGame();
-                  Navigator.pop(context);
-                },
-              ),
+              Container(
+                  padding: EdgeInsets.all(16),
+                  decoration:
+                      BoxDecoration(borderRadius: BorderRadius.circular(5), border: Border.all(color: Colors.white70)),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Text('Game Mode', style: theme.textTheme.body2),
+                      DropdownButtonHideUnderline(
+                          child: DropdownButton(
+                        hint: Text(
+                          'Game Mode',
+                        ),
+                        items: [
+                          DropdownMenuItem(
+                            child: Text('Normal'),
+                          ),
+                          DropdownMenuItem(
+                            child: Text('Hard', style: TextStyle(decoration: TextDecoration.lineThrough),),
+                          ),
+                          DropdownMenuItem(
+                            child: Text('Unlimited'),
+                          ),
+                        ],
+                        onChanged: (value) {},
+                      )),
+                      Text('2 min time. Points are 100%'),
+                      RaisedButton(
+                        child: Text('New Game'),
+                        onPressed: () {
+                          _createNewGame();
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  )),
               RaisedButton(
                 child: Text('Solve'),
                 onPressed: () {

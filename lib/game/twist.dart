@@ -171,9 +171,15 @@ class GameTimer {
 class GameScoreCalc {
   static const int _kMaxWords = 170;
 
-  static int calcScore(Iterable<String> possibleWords, Iterable<String> foundWords) {
-    if (foundWords.isEmpty) return 0;
+  static int calcScore(Iterable<String> possibleWords, Iterable<String> foundWords, {GameMode gameMode = GameMode.normal}) {
+    if (foundWords.isEmpty || gameMode == GameMode.unlimited) return 0;
     int multiplier = (1 / (possibleWords.length / _kMaxWords)).round();
-    return foundWords.map((w) => w.length * multiplier).reduce((l, r) => l + r);
+    return foundWords.map((w) => w.length * multiplier * (gameMode == GameMode.normal ? 1 : 1.5)).reduce((l, r) => l + r);
   }
+}
+
+enum GameMode {
+  normal,
+  hard,
+  unlimited
 }
