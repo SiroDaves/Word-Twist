@@ -9,40 +9,50 @@ const kSpace = ' ';
 
 class TwistGame {
   final WordsRepository _repository;
-  final int count;
-  String _source = '';
-  final List<bool> selected = [];
-  List<String> _sortedLetters = [];
+  final int wordLength;
+  final List<bool> selectedIndexes = [];
   final List<String> builtWord = [];
-  List<String> possibleWords = [];
   final Set<String> foundWords = new Set();
+  final List<String> possibleWords = [];
 
-  TwistGame(this._repository, {this.count = 6});
+  String _letters = '';
+  
+  TwistGame(this._repository, {this.wordLength = 6});
+
+  operator [](int i) => this._letters[i];
+
+  int get length => _letters.length;
+  String get sourceLetters => _letters;
+  String get gameScore => GameScoreCalc.calcScore(possibleWords, foundWords).toString();
+  int get gameScoreInt => GameScoreCalc.calcScore(possibleWords, foundWords);
+  bool isSelected(int i) => selectedIndexes[i];
 
   Future createNewGame() async {
     foundWords.clear();
-    _source = await _repository.getRandomWord();
-    _sortedLetters = _source.split('');
-    _sortedLetters.sort((a, b) => a.codeUnitAt(0).compareTo(b.codeUnitAt(0)));
+    _letters = await _repository.getRandomWord();
     twistWord();
-    await _buildPossibleWords();
+    final sortedLetters = _letters.split('');
+    sortedLetters.sort((a, b) => a.codeUnitAt(0).compareTo(b.codeUnitAt(0)));
+    await _buildPossibleWords(sortedLetters);
     resetSelection();
   }
 
-  Future _buildPossibleWords() async {
+  Future _buildPossibleWords(List<String> sortedLetters) async {
     final port = ReceivePort();
-    await Isolate.spawn(findAllPermutations, port.sendPort);
+    await Isolate.spawn(_findAllPermutations, port.sendPort);
     await port.listen((data) async {
       if (data is SendPort) {
         final SendPort isolatePort = data;
-        isolatePort.send(_sortedLetters);
+        isolatePort.send(sortedLetters);
       } else {
         Set<String> words = data;
-        Set<String> set = new Set<String>();
+        Set<String> possibleWordsSet = new Set<String>();
         for (var w in words) {
-          set.addAll(await _repository.getBuildableWords(w));
+          possibleWordsSet.addAll(await _repository.getBuildableWords(w));
         }
-        possibleWords = set.toList();
+        possibleWords
+          ..clear()
+          ..addAll(possibleWordsSet.toList());
         possibleWords.sort((l, r) => l.length.compareTo(r.length));
         print(possibleWords);
         port.close();
@@ -50,7 +60,27 @@ class TwistGame {
     }).asFuture();
   }
 
-  static void findAllPermutations(SendPort sendPort) async {
+  void twistWord() {
+    resetSelection();
+    final rnd = new Random();
+    final list = Iterable.generate(_letters.length, (n) => _letters[n]).toList();
+    for (var i = 0; i < list.length; i++) {
+      final s = list[i];
+      final n = rnd.nextInt(list.length - 1);
+      list[i] = list[n];
+      list[n] = s;
+    }
+    _letters = list.join().trim();
+  }
+
+  void resetSelection() {
+    selectedIndexes.length = _letters.length;
+    selectedIndexes.setAll(0, Iterable.generate(_letters.length, (n) => false));
+    builtWord.length = _letters.length;
+    builtWord.setAll(0, Iterable.generate(_letters.length, (n) => kSpace));
+  }
+
+  static void _findAllPermutations(SendPort sendPort) async {
     Set<String> set = new Set();
     var receivePort = new ReceivePort();
     sendPort.send(receivePort.sendPort);
@@ -68,51 +98,20 @@ class TwistGame {
     receivePort.close();
   }
 
-  operator [](int i) => this._source[i];
-
-  bool isSelected(int i) => selected[i];
-
-  void toggleSelect(int i) {
-    final bool isSelected = selected[i];
+  void toggleSelect(int pos) {
+    final bool isSelected = selectedIndexes[pos];
     if (isSelected) {
-      builtWord[builtWord.indexOf(_source[i])] = kSpace;
+      builtWord[builtWord.indexOf(_letters[pos])] = kSpace;
     } else {
-      builtWord[builtWord.indexOf(kSpace)] = _source[i];
+      builtWord[builtWord.indexOf(kSpace)] = _letters[pos];
     }
-    selected[i] = !isSelected;
-  }
-
-  void resetSelection() {
-    selected.length = _source.length;
-    selected.setAll(0, Iterable.generate(_source.length, (n) => false));
-    builtWord.length = _source.length;
-    builtWord.setAll(0, Iterable.generate(_source.length, (n) => kSpace));
-  }
-
-  void twistWord() {
-    resetSelection();
-    final rnd = new Random();
-    final list = Iterable.generate(_source.length, (n) => _source[n]).toList();
-    for (var i = 0; i < list.length; i++) {
-      final s = list[i];
-      final n = rnd.nextInt(list.length - 1);
-      list[i] = list[n];
-      list[n] = s;
-    }
-    _source = list.join().trim();
+    selectedIndexes[pos] = !isSelected;
   }
 
   void solveAll() {
     foundWords.clear();
     foundWords.addAll(possibleWords);
-  }
-
-  int get length => _source.length;
-
-  String get sourceLetters => _source;
-  String get gameScore => GameScoreCalc.calcScore(possibleWords, foundWords).toString();
-  int get gameScoreInt => GameScoreCalc.calcScore(possibleWords, foundWords);
-    
+  }    
 }
 
 class GameTimer {
