@@ -26,7 +26,7 @@ class TwistGame {
   String get sourceLetters => _letters; 
   bool isSelected(int i) => selectedIndexes[i];
 
-  Future createNewGame({GameMode gameMode = GameMode.normal}) async {    
+  Future createNewGame({GameMode gameMode = GameMode.hard}) async {    
     foundWords.clear();
     _letters = await _repository.getRandomWord();
     twistWord();
@@ -34,7 +34,7 @@ class TwistGame {
     sortedLetters.sort((a, b) => a.codeUnitAt(0).compareTo(b.codeUnitAt(0)));
     await _buildPossibleWords(sortedLetters);
     resetSelection();
-    gameScore.newGame(gameMode, possibleWords);
+    gameScore._newGame(gameMode, possibleWords);
   }
 
   Future _buildPossibleWords(List<String> sortedLetters) async {
@@ -71,6 +71,7 @@ class TwistGame {
       list[n] = s;
     }
     _letters = list.join().trim();
+    gameScore._onWordTwist();
   }
 
   void resetSelection() {
@@ -176,7 +177,7 @@ class GameScore {
 
   int get score => _score;
  
-  void newGame(GameMode gameMode, List<String> possibleWords) {
+  void _newGame(GameMode gameMode, List<String> possibleWords) {
     _score = 0;
     _gameMode = gameMode;
     _scoreMultiplier = (1 / (possibleWords.length / _kMaxWords)).round();
@@ -192,6 +193,12 @@ class GameScore {
   void onWordMissed(String falseWord) {
     if (_gameMode == GameMode.hard) {
       _score -= falseWord.length * _scoreMultiplier;
+    }
+  }
+
+  void _onWordTwist() {
+    if (_gameMode == GameMode.hard) {
+      _score -= 2 * _scoreMultiplier;
     }
   }
 

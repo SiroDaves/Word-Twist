@@ -25,10 +25,8 @@ class WordsDataSource implements WordsRepository {
     final buffer = db.buffer;
     final file = new File(dbFilePath);
     try {
-      await file.writeAsBytes(
-          buffer.asUint8List(db.offsetInBytes, db.lengthInBytes),
-          mode: FileMode.write,
-          flush: true);
+      await file.writeAsBytes(buffer.asUint8List(db.offsetInBytes, db.lengthInBytes),
+          mode: FileMode.write, flush: true);
     } on FileSystemException catch (e) {
       // if (Platform.isAndroid) {
       //   final NativeMethods _nativeMethods = new PlatformChannel();
@@ -47,46 +45,55 @@ class WordsDataSource implements WordsRepository {
 
   Future<bool> wordExists(String word) async {
     final Database db = await _getDatabase();
-    final String sql = '''SELECT COUNT(*) as c FROM words_en WHERE word = ?''';
-    final rows = await db.rawQuery(sql, [word.toLowerCase()]);
-    if (rows.length > 0) {
-      return rows[0]['c'] > 0;
+    try {
+      final String sql = '''SELECT COUNT(*) as c FROM words_en WHERE word = ?''';
+      final rows = await db.rawQuery(sql, [word.toLowerCase()]);
+      if (rows.length > 0) {
+        return rows[0]['c'] > 0;
+      }
+      return false;
+    } finally {
+      db.close();
     }
-    return false;
   }
 
   Future<List<String>> getBuildableWords(String sortedInput) async {
     final Database db = await _getDatabase();
-    final String rowsSql = 'SELECT * FROM words_fts WHERE sorted MATCH ?';
-    final List<Map<String, dynamic>> rowsCursor =
-        await db.rawQuery(rowsSql, ['^${sortedInput.toLowerCase()}']);
-    List<String> result = [];
-    if (rowsCursor.length == 0) return result;
-    final String wordIds = rowsCursor[0]['word_ids'];
-    final List<String> ids = wordIds.split(',');
-    for (var id in ids) {
-      final wordCursor = await db
-          .rawQuery('SELECT rowid, word FROM words_en WHERE rowid = ?', [id]);
-      result.add(wordCursor[0]['word']);
+    try {
+      final String rowsSql = 'SELECT * FROM words_fts WHERE sorted MATCH ?';
+      final List<Map<String, dynamic>> rowsCursor = await db.rawQuery(rowsSql, ['^${sortedInput.toLowerCase()}']);
+      List<String> result = [];
+      if (rowsCursor.length == 0) return result;
+      final String wordIds = rowsCursor[0]['word_ids'];
+      final List<String> ids = wordIds.split(',');
+      for (var id in ids) {
+        final wordCursor = await db.rawQuery('SELECT rowid, word FROM words_en WHERE rowid = ?', [id]);
+        result.add(wordCursor[0]['word']);
+      }
+      return result;
+    } finally {
+      db.close();
     }
-
-    return result;
   }
 
   Future<String> getRandomWord([int len = 6]) async {
     final Database db = await _getDatabase();
-    final String sql = 'SELECT * FROM words_en WHERE length(word) = ?';
-    final rows = await db.rawQuery(sql, [len]);
-    final List<String> words = rows.map((r) => r['word'].toString()).toList();
-    final rnd = new Random();
-    var result = words[rnd.nextInt(words.length - 1)];
-    var set = new Set<String>();
-    set.addAll(result.split(""));
-    while (result.length != set.length) {
-      set.clear();
-      result = words[rnd.nextInt(words.length - 1)];
+    try {
+      final String sql = 'SELECT * FROM words_en WHERE length(word) = ?';
+      final rows = await db.rawQuery(sql, [len]);
+      final List<String> words = rows.map((r) => r['word'].toString()).toList();
+      final rnd = new Random();
+      var result = words[rnd.nextInt(words.length - 1)];
+      var set = new Set<String>();
       set.addAll(result.split(""));
+      while (result.length != set.length) {
+        set.clear();
+        result = words[rnd.nextInt(words.length - 1)];
+        set.addAll(result.split(""));
+      }
+      return result;
+    } finally {
+      db.close();
     }
-    return result;
   }
 }
