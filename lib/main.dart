@@ -11,6 +11,7 @@ import 'package:word_twist/game/twist.dart';
 import 'package:word_twist/data/word_repo.dart';
 import 'package:word_twist/game/user_prefs_impl.dart';
 import 'package:word_twist/ui/coins_overlay.dart';
+import 'package:word_twist/ui/drawer.dart';
 import 'package:word_twist/ui/game_over_overlay.dart';
 import 'package:word_twist/ui/points.dart';
 import 'package:word_twist/ui/word_box.dart';
@@ -265,7 +266,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                   onPressed: () {
                     final w = twist.builtWord.join().toLowerCase().trim();
                     if (w.isEmpty) return;
-                    if (twist.possibleWords.contains(w)) {                      
+                    if (twist.possibleWords.contains(w)) {
                       setState(() {
                         twist.gameScore.onWordFound(w);
                         twist.foundWords.add(w);
@@ -351,63 +352,20 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                     )))
           ],
         ),
-        drawer: Container(
-          padding: const EdgeInsets.only(top: 64, left: 32, right: 32, bottom: 32),
-          child: Column(
-            children: <Widget>[
-              Text(
-                _coinsStore.coins.toString(),
-                style: theme.textTheme.subhead,
-              ),
-              Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(5), border: Border.all(color: Colors.white70)),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Text('Game Mode', style: theme.textTheme.body2),
-                      DropdownButtonHideUnderline(
-                          child: DropdownButton(
-                        hint: Text(
-                          'Game Mode',
-                        ),
-                        items: [
-                          DropdownMenuItem(
-                            child: Text('Normal'),
-                          ),
-                          DropdownMenuItem(
-                            child: Text('Hard', style: TextStyle(decoration: TextDecoration.lineThrough),),
-                          ),
-                          DropdownMenuItem(
-                            child: Text('Unlimited'),
-                          ),
-                        ],
-                        onChanged: (value) {},
-                      )),
-                      Text('2 min time. Points are 100%'),
-                      RaisedButton(
-                        child: Text('New Game'),
-                        onPressed: () {
-                          _createNewGame();
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ],
-                  )),
-              RaisedButton(
-                child: Text('Solve'),
-                onPressed: () {
-                  setState(() {
-                    twist.solveAll();
-                    Navigator.pop(context);
-                  });
-                  _gameTimer.stop();
-                  _onTimeExpired();
-                },
-              )
-            ],
-          ),
+        drawer: MenuDrawer(
+          width: MediaQuery.of(context).size.width,
+          isGameOver: _gameTimer.isTimeExpired,
+          onNewGameClick: () {
+            _createNewGame();
+            Navigator.pop(context);
+          },
+          onSolveClick: () {
+            setState(() {
+              twist.solveAll();
+              Navigator.pop(context);
+            });            
+          },
+          onStoreOpenClick: () {},
         ),
         body: _isLoading
             ? Center(
@@ -468,7 +426,7 @@ class _SpendCoinsAlertDialogState extends State<SpendCoinsAlertDialog> {
               textAlign: TextAlign.start,
             ),
             Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.symmetric(vertical: 8),
             ),
             Row(
               children: <Widget>[
