@@ -3,6 +3,7 @@ import 'package:word_twist/game/twist.dart';
 
 class MenuDrawer extends StatefulWidget {
   final bool isGameOver;
+  final bool isUnlimitedUnlocked;
   final Function(GameMode) onNewGameClick;
   final Function onStoreOpenClick;
   final Function onSolveClick;
@@ -11,6 +12,7 @@ class MenuDrawer extends StatefulWidget {
   const MenuDrawer(
       {Key key,
       @required this.isGameOver,
+      @required this.isUnlimitedUnlocked,
       @required this.width,
       @required this.onNewGameClick,
       @required this.onStoreOpenClick,
@@ -78,6 +80,7 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
                       child: Text('Normal'),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       onPressed: () => widget.onNewGameClick(GameMode.normal)),
+                  Divider(),
                   Text(
                     '2 minute time. Normal points for found words, no negative points on false words.',
                     textAlign: TextAlign.center,
@@ -98,6 +101,7 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
                       child: Text('Hard'),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       onPressed: () => widget.onNewGameClick(GameMode.hard)),
+                  Divider(),
                   Text(
                     '2 minute time. 150% points for found words, negative points on false words and on word twist.',
                     textAlign: TextAlign.center,
@@ -112,10 +116,31 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
               padding: EdgeInsets.all(16),
               child: Column(
                 children: <Widget>[
-                  RaisedButton(
-                      child: Text('Unlimited'),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      onPressed: () => widget.onNewGameClick(GameMode.unlimited)),
+                  widget.isUnlimitedUnlocked
+                      ? RaisedButton(
+                          child: Text('Unlimited'),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          onPressed:
+                              widget.isUnlimitedUnlocked ? () => widget.onNewGameClick(GameMode.unlimited) : null)
+                      : Stack(
+                          children: <Widget>[
+                            Padding(padding: EdgeInsets.all(8), child:  RaisedButton(
+                                child: Text('Unlimited'),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                onPressed: widget.isUnlimitedUnlocked
+                                    ? () => widget.onNewGameClick(GameMode.unlimited)
+                                    : null)),
+                            Positioned(
+                              left: 64,
+                              top: -12,
+                              child: IconButton(
+                                
+                              icon: Icon(Icons.shopping_cart, size: 36,),
+                              onPressed: widget.onStoreOpenClick,
+                            )
+                            )],
+                        ),
+                  Divider(),
                   Text(
                     'Unlimited time. No points',
                     textAlign: TextAlign.center,
@@ -125,6 +150,9 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
             )
           ]
         : [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+            ),
             RaisedButton(
               child: const Text('New Game'),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -147,7 +175,7 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
         animation: _controller,
         builder: (c, v) => Container(
               width: widget.width * 0.7,
-              color: Colors.black,
+              color: Colors.black87,
               padding: const EdgeInsets.only(top: 32, left: 32, right: 32, bottom: 32),
               child: Column(
                 children: <Widget>[
@@ -158,9 +186,6 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
                   ),
                   Divider(
                     color: Colors.white70,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
                   ),
                   Transform.translate(
                     offset: Offset(_offsetAnim.value, 0),

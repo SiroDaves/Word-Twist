@@ -103,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
       });
     _timerScaleAnimation = Tween<double>(begin: 1, end: 1.2).animate(_timerScaleController);
     _gameTimer = new GameTimer(_onTimeExpired, _onTimeTick);
-    _createNewGame();
+    _createNewGame(GameMode.normal);
     super.initState();
   }
 
@@ -266,7 +266,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                   onPressed: () {
                     final w = twist.builtWord.join().toLowerCase().trim();
                     if (w.isEmpty) return;
-                    if (twist.possibleWords.contains(w)) {
+                    if (twist.possibleWords.contains(w) && !twist.foundWords.contains(w)) {
                       setState(() {
                         twist.gameScore.onWordFound(w);
                         twist.foundWords.add(w);
@@ -355,6 +355,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
         drawer: MenuDrawer(
           width: MediaQuery.of(context).size.width,
           isGameOver: _gameTimer.isTimeExpired,
+          isUnlimitedUnlocked: false,
           onNewGameClick: (m) {
             _createNewGame(m);
             Navigator.pop(context);
