@@ -198,7 +198,7 @@ class GameScore {
 
   void _onWordTwist() {
     if (_gameMode == GameMode.hard) {
-      _score -= 2 * _scoreMultiplier;
+      _score -= _scoreMultiplier;
     }
   }
 

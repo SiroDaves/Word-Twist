@@ -168,14 +168,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
     final theme = Theme.of(context);
     final List<Widget> stackChildren = [
       Padding(
-        padding: EdgeInsets.only(bottom: 16, left: 16, right: 16),
+        padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Expanded(
                 child: Padding(
-                    padding: EdgeInsets.only(bottom: 24, top: 24),
+                    padding: const EdgeInsets.only(bottom: 24, top: 24),
                     child: GridView.count(
                       childAspectRatio: 5,
                       padding: EdgeInsets.all(0),
@@ -189,7 +189,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                           .toList(),
                     ))),
             Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: WordHolder(
                   onTap: () {
                     int i = twist.builtWord.lastIndexWhere((s) => s != kSpace);
@@ -203,14 +203,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                   points: twist.gameScore.score,
                 )),
             Padding(
-              padding: EdgeInsets.only(top: 24),
+              padding: const EdgeInsets.only(top: 24),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: Iterable.generate(
                   twist.length,
                   (n) => Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: InkWell(
                           onTap: () {
                             if (twist.isSelected(n)) return;
@@ -237,13 +237,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                                       ))))))).toList(),
             ),
             Padding(
-              padding: EdgeInsets.only(top: 16),
+              padding: const EdgeInsets.only(top: 16),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
                 RaisedButton(
-                  child: Text('Twist'),
+                  child: const Text('Twist'),
                   onPressed: () {
                     setState(() {
                       twist.twistWord();
@@ -252,7 +252,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 ),
                 RaisedButton(
-                  child: Text('Clear'),
+                  child: const Text('Clear'),
                   onPressed: () {
                     setState(() {
                       twist.resetSelection();
@@ -261,7 +261,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 ),
                 RaisedButton(
-                  child: Text('Enter'),
+                  child: const Text('Enter'),
                   onPressed: () {
                     final w = twist.builtWord.join().toLowerCase().trim();
                     if (w.isEmpty) return;
@@ -315,7 +315,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
             SizedBox(
                 width: MediaQuery.of(context).size.width / 3,
                 child: Padding(
-                    padding: EdgeInsets.only(left: 32),
+                    padding: const EdgeInsets.only(left: 32),
                     child: AnimatedBuilder(
                         animation: _timerScaleController,
                         builder: (c, v) => Transform.scale(
@@ -345,14 +345,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
           actions: <Widget>[
             Center(
                 child: Padding(
-                    padding: EdgeInsets.only(right: 16),
+                    padding: const EdgeInsets.only(right: 16),
                     child: GameScoreWidget(
                       score: twist.gameScore.score.toString(),
                     )))
           ],
         ),
         drawer: Container(
-          padding: EdgeInsets.only(top: 64, left: 32, right: 32, bottom: 32),
+          padding: const EdgeInsets.only(top: 64, left: 32, right: 32, bottom: 32),
           child: Column(
             children: <Widget>[
               Text(
@@ -360,7 +360,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                 style: theme.textTheme.subhead,
               ),
               Container(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   decoration:
                       BoxDecoration(borderRadius: BorderRadius.circular(5), border: Border.all(color: Colors.white70)),
                   child: Column(
@@ -462,7 +462,7 @@ class _SpendCoinsAlertDialogState extends State<SpendCoinsAlertDialog> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text("Do you want to spend 5 coins to extend game time by 1 minute?", textAlign: TextAlign.start),
+            const Text("Do you want to spend 5 coins to extend game time by 1 minute?", textAlign: TextAlign.start),
             Text(
               '\nCurrently you have ${widget.coins} coins.',
               textAlign: TextAlign.start,
@@ -487,14 +487,14 @@ class _SpendCoinsAlertDialogState extends State<SpendCoinsAlertDialog> {
           ]),
       actions: <Widget>[
         FlatButton(
-          child: Text("No"),
+          child: const Text("No"),
           onPressed: () {
             Navigator.of(context).pop();
             widget.completer.complete(false);
           },
         ),
         FlatButton(
-          child: Text("Yes"),
+          child: const Text("Yes"),
           onPressed: () {
             Navigator.of(context).pop();
             widget.completer.complete(true);
