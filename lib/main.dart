@@ -118,12 +118,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
     super.dispose();
   }
 
-  void _createNewGame() {
+  void _createNewGame(GameMode mode) {
     setState(() {
       _isLoading = true;
     });
 
-    twist.createNewGame().then((v) {
+    twist.createNewGame(gameMode: mode).then((v) {
       setState(() {
         _isLoading = false;
       });
@@ -355,8 +355,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
         drawer: MenuDrawer(
           width: MediaQuery.of(context).size.width,
           isGameOver: _gameTimer.isTimeExpired,
-          onNewGameClick: () {
-            _createNewGame();
+          onNewGameClick: (m) {
+            _createNewGame(m);
             Navigator.pop(context);
           },
           onSolveClick: () {

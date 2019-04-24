@@ -3,7 +3,7 @@ import 'package:word_twist/game/twist.dart';
 
 class MenuDrawer extends StatefulWidget {
   final bool isGameOver;
-  final Function onNewGameClick;
+  final Function(GameMode) onNewGameClick;
   final Function onStoreOpenClick;
   final Function onSolveClick;
   final double width;
@@ -29,7 +29,7 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(duration: const Duration(milliseconds: 300), vsync: this)
+    _controller = AnimationController(duration: const Duration(milliseconds: 250), vsync: this)
       ..addStatusListener((s) {
         if (s == AnimationStatus.completed) {
           setState(() {
@@ -38,8 +38,8 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
           _controller.reverse();
         }
       });
-    _offsetAnim = Tween<double>(begin: 0, end: widget.width * -1)
-        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _offsetAnim = Tween<double>(begin: 0, end: (widget.width * -1) + widget.width / 4)
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
   }
 
   @override
@@ -61,13 +61,65 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
                 )
               ],
             ),
+            Text(
+              'New Game',
+              style: theme.textTheme.headline,
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 8),
+            ),
             Container(
+              width: widget.width - 32,
+              decoration: BoxDecoration(border: Border.all(color: Colors.white)),
+              padding: EdgeInsets.all(16),
               child: Column(
                 children: <Widget>[
                   RaisedButton(
                       child: Text('Normal'),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      onPressed: widget.onNewGameClick),
+                      onPressed: () => widget.onNewGameClick(GameMode.normal)),
+                  Text(
+                    '2 minute time. Normal points for found words, no negative points on false words.',
+                    textAlign: TextAlign.center,
+                  )
+                ],
+              ),
+            ),
+            Divider(),
+            Container(
+              width: widget.width - 32,
+              decoration: BoxDecoration(border: Border.all(color: Colors.white)),
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  RaisedButton(
+                      child: Text('Hard'),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      onPressed: () => widget.onNewGameClick(GameMode.hard)),
+                  Text(
+                    '2 minute time. 150% points for found words, negative points on false words and on word twist.',
+                    textAlign: TextAlign.center,
+                  )
+                ],
+              ),
+            ),
+            Divider(),
+            Container(
+              width: widget.width - 32,
+              decoration: BoxDecoration(border: Border.all(color: Colors.white)),
+              padding: EdgeInsets.all(16),
+              child: Column(
+                children: <Widget>[
+                  RaisedButton(
+                      child: Text('Unlimited'),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      onPressed: () => widget.onNewGameClick(GameMode.unlimited)),
+                  Text(
+                    'Unlimited time. No points',
+                    textAlign: TextAlign.center,
+                  )
                 ],
               ),
             )
@@ -78,25 +130,28 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
               onPressed: () => _controller.forward(),
             ),
+            Divider(),
             RaisedButton(
               child: const Text('In Game Store'),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
               onPressed: widget.onStoreOpenClick,
             ),
-            widget.isGameOver
-                ? RaisedButton(
-                    child: const Text('Solve'),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    onPressed: widget.onSolveClick,
-                  )
-                : SizedBox()
+            Divider(),
+            RaisedButton(
+              child: const Text('Solve'),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              onPressed: widget.isGameOver ? widget.onSolveClick : null,
+            )
           ];
     return AnimatedBuilder(
         animation: _controller,
         builder: (c, v) => Container(
-              padding: const EdgeInsets.only(top: 86, left: 32, right: 32, bottom: 32),
+              width: widget.width * 0.7,
+              color: Colors.black,
+              padding: const EdgeInsets.only(top: 32, left: 32, right: 32, bottom: 32),
               child: Column(
                 children: <Widget>[
+                  // IconButton(icon: Icon(Icons.close), onPressed: () => Navigator.pop(context),),
                   Text(
                     'Word Twist',
                     style: theme.textTheme.display1,
@@ -108,8 +163,8 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
                     padding: const EdgeInsets.symmetric(vertical: 8),
                   ),
                   Transform.translate(
-                    child: Column(mainAxisSize: MainAxisSize.min, children: children),
                     offset: Offset(_offsetAnim.value, 0),
+                    child: Column(mainAxisSize: MainAxisSize.min, children: children),
                   )
                 ],
               ),
