@@ -17,16 +17,19 @@ class TwistGame {
   final GameScore gameScore = new GameScore();
 
   String _letters = '';
-  
+  GameMode _gameMode = GameMode.normal;
+
   TwistGame(this._repository, {this.wordLength = 6});
 
   operator [](int i) => this._letters[i];
 
   int get length => _letters.length;
-  String get sourceLetters => _letters; 
+  String get sourceLetters => _letters;
   bool isSelected(int i) => selectedIndexes[i];
+  GameMode get gameMode => _gameMode;
 
-  Future createNewGame({GameMode gameMode = GameMode.hard}) async {    
+  Future createNewGame(GameMode gameMode) async {
+    _gameMode = gameMode;
     foundWords.clear();
     _letters = await _repository.getRandomWord();
     twistWord();
@@ -112,7 +115,7 @@ class TwistGame {
   void solveAll() {
     foundWords.clear();
     foundWords.addAll(possibleWords);
-  }    
+  }
 }
 
 class GameTimer {
@@ -176,7 +179,7 @@ class GameScore {
   int _scoreMultiplier;
 
   int get score => _score;
- 
+
   void _newGame(GameMode gameMode, List<String> possibleWords) {
     _score = 0;
     _gameMode = gameMode;
@@ -187,7 +190,9 @@ class GameScore {
   }
 
   void onWordFound(String word) {
-    _score += word.length * _scoreMultiplier;
+    if (_gameMode != GameMode.unlimited) {
+      _score += word.length * _scoreMultiplier;
+    }
   }
 
   void onWordMissed(String falseWord) {
@@ -201,16 +206,6 @@ class GameScore {
       _score -= _scoreMultiplier;
     }
   }
-
-  static int calcScore(Iterable<String> possibleWords, Iterable<String> foundWords, {GameMode gameMode = GameMode.normal}) {
-    if (foundWords.isEmpty || gameMode == GameMode.unlimited) return 0;
-    int multiplier = (1 / (possibleWords.length / _kMaxWords)).round();
-    return foundWords.map((w) => w.length * multiplier * (gameMode == GameMode.normal ? 1 : 1.5)).reduce((l, r) => l + r);
-  }
 }
 
-enum GameMode {
-  normal,
-  hard,
-  unlimited
-}
+enum GameMode { normal, hard, unlimited }

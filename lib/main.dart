@@ -67,30 +67,30 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
   Animation<double> _gameOverAnimation;
   Animation<double> _timerScaleAnimation;
 
-  AnimationController _gameOverController;
-  AnimationController _shakeController;
-  AnimationController _coinsController;
+  AnimationController _gameOverAnimController;
+  AnimationController _shakeAnimController;
+  AnimationController _coinsAnimController;
   AnimationController _timerScaleController;
 
   @override
   void initState() {
     _coinsStore = new CoinsStore(_userPrefs);
     WidgetsBinding.instance.addObserver(this);
-    _shakeController = new AnimationController(vsync: this, duration: const Duration(milliseconds: 500))
+    _shakeAnimController = new AnimationController(vsync: this, duration: const Duration(milliseconds: 500))
       ..addListener(() {
         setState(() {});
       });
-    _gameOverController = new AnimationController(duration: const Duration(milliseconds: 1500), vsync: this);
-    _coinsController = new AnimationController(duration: const Duration(milliseconds: 1200), vsync: this)
+    _gameOverAnimController = new AnimationController(duration: const Duration(milliseconds: 1500), vsync: this);
+    _coinsAnimController = new AnimationController(duration: const Duration(milliseconds: 1200), vsync: this)
       ..addStatusListener((s) {
         if (s == AnimationStatus.completed) {
           setState(() {
             _coinsEarned = false;
           });
-          _coinsController.value = 0;
+          _coinsAnimController.value = 0;
         }
       });
-    _gameOverAnimation = CurvedAnimation(parent: _gameOverController, curve: Curves.easeInOutSine);
+    _gameOverAnimation = CurvedAnimation(parent: _gameOverAnimController, curve: Curves.easeInOutSine);
     _timerScaleController = AnimationController(duration: const Duration(milliseconds: 400), vsync: this)
       ..addStatusListener((s) {
         if (s == AnimationStatus.completed && !_gameTimer.isTimeExpired) {
@@ -111,34 +111,35 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _gameTimer.dispose();
-    _shakeController.dispose();
-    _gameOverController.dispose();
-    _coinsController.dispose();
+    _shakeAnimController.dispose();
+    _gameOverAnimController.dispose();
+    _coinsAnimController.dispose();
     _timerScaleController.dispose();
     super.dispose();
   }
 
-  void _createNewGame(GameMode mode) {
+  Future _createNewGame(GameMode mode) async {
     setState(() {
       _isLoading = true;
     });
 
-    twist.createNewGame(gameMode: mode).then((v) {
-      setState(() {
-        _isLoading = false;
-      });
-      _coinsStore.reset();
-      _gameTimer.restartTimer();
-      _timerScaleController.value = 0;
+    await twist.createNewGame(mode);
+    setState(() {
+      _isLoading = false;
     });
+    _coinsStore.reset();
+    if (mode != GameMode.unlimited) {
+      _gameTimer.restartTimer();
+    }
+    _timerScaleController.value = 0;
   }
 
   void _onTimeExpired() {
     setState(() {
       _gameTimer.isTimeExpired;
     });
-    if (_gameOverController.status == AnimationStatus.completed) _gameOverController.reset();
-    _gameOverController.forward();
+    if (_gameOverAnimController.status == AnimationStatus.completed) _gameOverAnimController.reset();
+    _gameOverAnimController.forward();
   }
 
   void _onTimeTick() {
@@ -159,7 +160,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
   }
 
   Vector3 _getTranslation() {
-    double progress = _shakeController.value;
+    double progress = _shakeAnimController.value;
     double offset = sin(progress * pi * 7) * 10;
     return Vector3(offset, offset / 10, 0);
   }
@@ -276,15 +277,15 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                       if (coins > 0) {
                         setState(() {
                           _coinsEarned = true;
-                          _coinsController.forward();
+                          _coinsAnimController.forward();
                         });
                       }
                     } else {
                       setState(() {
                         twist.gameScore.onWordMissed(w);
                       });
-                      _shakeController.reset();
-                      _shakeController.forward();
+                      _shakeAnimController.reset();
+                      _shakeAnimController.forward();
                     }
                   },
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -298,12 +299,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
 
     if (_coinsEarned) {
       stackChildren.add(CoinsOverlay(
-        controller: _coinsController,
+        controller: _coinsAnimController,
         screenSize: MediaQuery.of(context).size,
       ));
     }
 
-    if (_gameTimer.isTimeExpired) {
+    if (twist.gameMode != GameMode.unlimited && _gameTimer.isTimeExpired) {
       stackChildren.add(GameOverOverlay(
         controller: _gameOverAnimation,
         screenSize: MediaQuery.of(context).size,
@@ -312,50 +313,54 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
 
     return Scaffold(
         appBar: AppBar(
-          title: Row(mainAxisSize: MainAxisSize.max, children: [
-            SizedBox(
-                width: MediaQuery.of(context).size.width / 3,
-                child: Padding(
-                    padding: const EdgeInsets.only(left: 32),
-                    child: AnimatedBuilder(
-                        animation: _timerScaleController,
-                        builder: (c, v) => Transform.scale(
-                              child: Text(
-                                _gameTimer.gameTime,
-                                textAlign: TextAlign.right,
-                                style: theme.textTheme.display1,
-                              ),
-                              scale: _timerScaleAnimation.value,
-                            )))),
-            SizedBox(
-                width: MediaQuery.of(context).size.width / 4,
-                child: IconButton(
-                  icon: Icon(Icons.plus_one),
-                  onPressed: _gameTimer.seconds > 0
-                      ? () async {                          
-                          if (await _confirmCoinSpend()) {
-                            _coinsStore.consumeCoins(kCoinsForOneMin);
-                            _gameTimer.addTime(60);
-                            setState(() {});
-                          }                          
-                        }
-                      : null,
-                )),
-          ]),
+          title: twist.gameMode != GameMode.unlimited
+              ? Row(mainAxisSize: MainAxisSize.max, children: [
+                  SizedBox(
+                      width: MediaQuery.of(context).size.width / 3,
+                      child: Padding(
+                          padding: const EdgeInsets.only(left: 32),
+                          child: AnimatedBuilder(
+                              animation: _timerScaleController,
+                              builder: (c, v) => Transform.scale(
+                                    child: Text(
+                                      _gameTimer.gameTime,
+                                      textAlign: TextAlign.right,
+                                      style: theme.textTheme.display1,
+                                    ),
+                                    scale: _timerScaleAnimation.value,
+                                  )))),
+                  SizedBox(
+                      width: MediaQuery.of(context).size.width / 4,
+                      child: IconButton(
+                        icon: Icon(Icons.plus_one),
+                        onPressed: _gameTimer.seconds > 0
+                            ? () async {
+                                if (await _confirmCoinSpend()) {
+                                  _coinsStore.consumeCoins(kCoinsForOneMin);
+                                  _gameTimer.addTime(60);
+                                  setState(() {});
+                                }
+                              }
+                            : null,
+                      )),
+                ])
+              : const Text('Word Twist'),
           centerTitle: true,
-          actions: <Widget>[
-            Center(
-                child: Padding(
-                    padding: const EdgeInsets.only(right: 16),
-                    child: GameScoreWidget(
-                      score: twist.gameScore.score.toString(),
-                    )))
-          ],
+          actions: twist.gameMode != GameMode.unlimited
+              ? <Widget>[
+                  Center(
+                      child: Padding(
+                          padding: const EdgeInsets.only(right: 16),
+                          child: GameScoreWidget(
+                            score: twist.gameScore.score.toString(),
+                          )))
+                ]
+              : null,
         ),
         drawer: MenuDrawer(
           width: MediaQuery.of(context).size.width,
           isGameOver: _gameTimer.isTimeExpired,
-          isUnlimitedUnlocked: false,
+          isUnlimitedUnlocked: true,
           onNewGameClick: (m) {
             _createNewGame(m);
             Navigator.pop(context);
@@ -364,7 +369,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
             setState(() {
               twist.solveAll();
               Navigator.pop(context);
-            });            
+            });
           },
           onStoreOpenClick: () {},
         ),
@@ -381,7 +386,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
 
   Future<bool> _confirmCoinSpend() {
     if (_userPrefs.getBool(_kDontAskAgianCoins) ?? false) {
-      return Future.value(true);
+      return Future.value(_coinsStore.coins >= kCoinsForOneMin);
     } else {
       final completer = new Completer<bool>();
       showDialog(
@@ -398,7 +403,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
 }
 
 const _kDontAskAgianCoins = 'DontAskAgainCoins';
-const _kCoinsFor1Min = 5;
 
 class SpendCoinsAlertDialog extends StatefulWidget {
   final Completer<bool> completer;
@@ -422,7 +426,8 @@ class _SpendCoinsAlertDialogState extends State<SpendCoinsAlertDialog> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            const Text("Do you want to spend $_kCoinsFor1Min coins to extend game time by 1 minute?", textAlign: TextAlign.start),
+            const Text("Do you want to spend $kCoinsForOneMin coins to extend game time by 1 minute?",
+                textAlign: TextAlign.start),
             Text(
               '\nCurrently you have ${widget.coins} coins.',
               textAlign: TextAlign.start,
@@ -455,10 +460,12 @@ class _SpendCoinsAlertDialogState extends State<SpendCoinsAlertDialog> {
         ),
         FlatButton(
           child: const Text("Yes"),
-          onPressed: widget.coins >= _kCoinsFor1Min ? () {
-            Navigator.of(context).pop();
-            widget.completer.complete(true);
-          } : null,
+          onPressed: widget.coins >= kCoinsForOneMin
+              ? () {
+                  Navigator.of(context).pop();
+                  widget.completer.complete(true);
+                }
+              : null,
         ),
       ],
     );
