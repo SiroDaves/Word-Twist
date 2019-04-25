@@ -70,49 +70,13 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
             Padding(
               padding: EdgeInsets.symmetric(vertical: 8),
             ),
-            Container(
-              width: widget.width - 32,
-              decoration: BoxDecoration(border: Border.all(color: Colors.white)),
-              padding: EdgeInsets.all(16),
-              child: Column(
-                children: <Widget>[
-                  RaisedButton(
-                      child: Text('Normal'),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      onPressed: () => widget.onNewGameClick(GameMode.normal)),
-                  Divider(),
-                  Text(
-                    '2 minute time. Normal points for found words, no negative points on false words.',
-                    textAlign: TextAlign.center,
-                  )
-                ],
-              ),
-            ),
+            GameModeHost(width: widget.width, gameMode: GameMode.normal, onNewGameClick: widget.onNewGameClick,),
+            Divider(),
+            GameModeHost(width: widget.width, gameMode: GameMode.hard, onNewGameClick: widget.onNewGameClick,),
             Divider(),
             Container(
               width: widget.width - 32,
-              decoration: BoxDecoration(border: Border.all(color: Colors.white)),
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  RaisedButton(
-                      child: Text('Hard'),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      onPressed: () => widget.onNewGameClick(GameMode.hard)),
-                  Divider(),
-                  Text(
-                    '2 minute time. 150% points for found words, negative points on false words and on word twist.',
-                    textAlign: TextAlign.center,
-                  )
-                ],
-              ),
-            ),
-            Divider(),
-            Container(
-              width: widget.width - 32,
-              decoration: BoxDecoration(border: Border.all(color: Colors.white)),
+              decoration: BoxDecoration(border: Border.all(color: Colors.white), borderRadius: BorderRadius.circular(5)),
               padding: EdgeInsets.all(16),
               child: Column(
                 children: <Widget>[
@@ -141,8 +105,8 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
                             )],
                         ),
                   Divider(),
-                  Text(
-                    'Unlimited time. No points',
+                  const Text(
+                    'Unlimited time. No points.',
                     textAlign: TextAlign.center,
                   )
                 ],
@@ -194,5 +158,52 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
                 ],
               ),
             ));
+  }
+}
+
+
+class GameModeHost extends StatelessWidget {
+  final double width;
+  final Function(GameMode) onNewGameClick;
+  final GameMode gameMode;
+
+  const GameModeHost({Key key, @required this.width, @required this.onNewGameClick, @required this.gameMode}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    var btnText = '';
+    var explanation = '';
+    switch (gameMode) {
+      case GameMode.normal: 
+        btnText = 'Normal';
+        explanation = '2 minute time. Normal points for found words, no negative points on false words.';
+        break;
+        case GameMode.hard: 
+        btnText = 'Hard';
+        explanation = '2 minute time. 150% points for found words, negative points on false words and on word twist.';
+        break;
+        case GameMode.unlimited: 
+        btnText = 'Unlimited';
+        explanation = 'Unlimited time. No points';
+        break;
+      default:
+    }
+    return Container(
+              width: width - 32,
+              decoration: BoxDecoration(border: Border.all(color: Colors.white), borderRadius: BorderRadius.circular(5)),
+              padding: EdgeInsets.all(16),
+              child: Column(
+                children: <Widget>[
+                  RaisedButton(
+                      child: Text(btnText),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      onPressed: () => onNewGameClick(gameMode)),
+                  Divider(),
+                  Text(
+                    explanation,
+                    textAlign: TextAlign.center,
+                  )
+                ],
+              ),
+            );
   }
 }
