@@ -333,11 +333,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                   icon: Icon(Icons.plus_one),
                   onPressed: _gameTimer.seconds > 0
                       ? () async {
+                          _gameTimer.togglePause();
                           if (await _confirmCoinSpend()) {
                             _coinsStore.consumeCoins(kCoinsForOneMin);
                             _gameTimer.addTime(60);
                             setState(() {});
                           }
+                          _gameTimer.togglePause();
                         }
                       : null,
                 )),
