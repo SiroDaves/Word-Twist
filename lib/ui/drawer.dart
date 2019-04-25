@@ -76,7 +76,7 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
             Divider(),
             Container(
               width: widget.width - 32,
-              decoration: BoxDecoration(border: Border.all(color: Colors.white), borderRadius: BorderRadius.circular(5)),
+              decoration: BoxDecoration(border: Border.all(color: Colors.white30), borderRadius: BorderRadius.circular(5)),
               padding: EdgeInsets.all(16),
               child: Column(
                 children: <Widget>[
@@ -139,8 +139,8 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
         animation: _controller,
         builder: (c, v) => Container(
               width: widget.width * 0.7,
-              color: Colors.black87,
-              padding: const EdgeInsets.only(top: 32, left: 32, right: 32, bottom: 32),
+              color: const Color(0xFF1F1F1F),
+              padding: const EdgeInsets.only(top: 48, left: 32, right: 32, bottom: 32),
               child: Column(
                 children: <Widget>[
                   // IconButton(icon: Icon(Icons.close), onPressed: () => Navigator.pop(context),),
@@ -189,7 +189,7 @@ class GameModeHost extends StatelessWidget {
     }
     return Container(
               width: width - 32,
-              decoration: BoxDecoration(border: Border.all(color: Colors.white), borderRadius: BorderRadius.circular(5)),
+              decoration: BoxDecoration(border: Border.all(color: Colors.white30), borderRadius: BorderRadius.circular(5)),
               padding: EdgeInsets.all(16),
               child: Column(
                 children: <Widget>[

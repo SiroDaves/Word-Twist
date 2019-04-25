@@ -6,7 +6,7 @@ class GameOverOverlay extends StatelessWidget {
             .animate(CurvedAnimation(parent: controller, curve: Interval(0, .5, curve: Curves.easeIn))),
         _heightTween = Tween<double>(begin: 0, end: screenSize.height)
             .animate(CurvedAnimation(parent: controller, curve: Interval(0, .5, curve: Curves.easeOut))),
-        _opacityTween = Tween<double>(begin: 0, end: 0.7)
+        _opacityTween = Tween<double>(begin: 0, end: 0.6)
             .animate(CurvedAnimation(parent: controller, curve: Interval(0, .7, curve: Curves.easeIn))),
         _fontSizeTween = Tween<double>(begin: 0, end: 46)
             .animate(CurvedAnimation(parent: controller, curve: Interval(0.4, 1, curve: Curves.bounceOut))),
