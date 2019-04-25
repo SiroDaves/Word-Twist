@@ -332,14 +332,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                 child: IconButton(
                   icon: Icon(Icons.plus_one),
                   onPressed: _gameTimer.seconds > 0
-                      ? () async {
-                          _gameTimer.togglePause();
+                      ? () async {                          
                           if (await _confirmCoinSpend()) {
                             _coinsStore.consumeCoins(kCoinsForOneMin);
                             _gameTimer.addTime(60);
                             setState(() {});
-                          }
-                          _gameTimer.togglePause();
+                          }                          
                         }
                       : null,
                 )),
@@ -400,6 +398,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
 }
 
 const _kDontAskAgianCoins = 'DontAskAgainCoins';
+const _kCoinsFor1Min = 5;
 
 class SpendCoinsAlertDialog extends StatefulWidget {
   final Completer<bool> completer;
@@ -423,7 +422,7 @@ class _SpendCoinsAlertDialogState extends State<SpendCoinsAlertDialog> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            const Text("Do you want to spend 5 coins to extend game time by 1 minute?", textAlign: TextAlign.start),
+            const Text("Do you want to spend $_kCoinsFor1Min coins to extend game time by 1 minute?", textAlign: TextAlign.start),
             Text(
               '\nCurrently you have ${widget.coins} coins.',
               textAlign: TextAlign.start,
@@ -456,10 +455,10 @@ class _SpendCoinsAlertDialogState extends State<SpendCoinsAlertDialog> {
         ),
         FlatButton(
           child: const Text("Yes"),
-          onPressed: () {
+          onPressed: widget.coins >= _kCoinsFor1Min ? () {
             Navigator.of(context).pop();
             widget.completer.complete(true);
-          },
+          } : null,
         ),
       ],
     );
