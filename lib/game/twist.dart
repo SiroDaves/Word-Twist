@@ -17,7 +17,7 @@ class TwistGame {
   final GameScore gameScore = new GameScore();
 
   String _letters = '';
-  GameMode _gameMode = GameMode.normal;
+  GameMode _gameMode;
 
   TwistGame(this._repository, {this.wordLength = 6});
 

@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import "package:flare_flutter/flare_actor.dart";
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vector_math/vector_math_64.dart' show Vector3;
 import 'package:word_twist/data/user_prefs.dart';
@@ -58,11 +59,13 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, TickerProviderStateMixin {
   final TwistGame twist = new TwistGame(new WordsDataSource());
   final UserPrefs _userPrefs = UserPrefsImpl.instance();
-  CoinsStore _coinsStore;
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
 
   bool _isLoading = false;
   bool _coinsEarned = false;
+
   GameTimer _gameTimer;
+  CoinsStore _coinsStore;
 
   Animation<double> _gameOverAnimation;
   Animation<double> _timerScaleAnimation;
@@ -103,7 +106,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
       });
     _timerScaleAnimation = Tween<double>(begin: 1, end: 1.2).animate(_timerScaleController);
     _gameTimer = new GameTimer(_onTimeExpired, _onTimeTick);
-    _createNewGame(GameMode.normal);
+    Future.delayed(Duration(milliseconds: 500)).then((v) => _scaffoldKey.currentState.openDrawer());
     super.initState();
   }
 
@@ -312,51 +315,54 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
     }
 
     return Scaffold(
-        appBar: AppBar(
-          title: twist.gameMode != GameMode.unlimited
-              ? Row(mainAxisSize: MainAxisSize.max, children: [
-                  SizedBox(
-                      width: MediaQuery.of(context).size.width / 3,
-                      child: Padding(
-                          padding: const EdgeInsets.only(left: 32),
-                          child: AnimatedBuilder(
-                              animation: _timerScaleController,
-                              builder: (c, v) => Transform.scale(
-                                    child: Text(
-                                      _gameTimer.gameTime,
-                                      textAlign: TextAlign.right,
-                                      style: theme.textTheme.display1,
-                                    ),
-                                    scale: _timerScaleAnimation.value,
-                                  )))),
-                  SizedBox(
-                      width: MediaQuery.of(context).size.width / 4,
-                      child: IconButton(
-                        icon: Icon(Icons.plus_one),
-                        onPressed: _gameTimer.seconds > 0
-                            ? () async {
-                                if (await _confirmCoinSpend()) {
-                                  _coinsStore.consumeCoins(kCoinsForOneMin);
-                                  _gameTimer.addTime(60);
-                                  setState(() {});
-                                }
-                              }
-                            : null,
-                      )),
-                ])
-              : const Text('Word Twist'),
-          centerTitle: true,
-          actions: twist.gameMode != GameMode.unlimited
-              ? <Widget>[
-                  Center(
-                      child: Padding(
-                          padding: const EdgeInsets.only(right: 16),
-                          child: GameScoreWidget(
-                            score: twist.gameScore.score.toString(),
-                          )))
-                ]
-              : null,
-        ),
+        key: _scaffoldKey,
+        appBar: twist.gameMode == null
+            ? null
+            : AppBar(
+                title: twist.gameMode != GameMode.unlimited
+                    ? Row(mainAxisSize: MainAxisSize.max, children: [
+                        SizedBox(
+                            width: MediaQuery.of(context).size.width / 3,
+                            child: Padding(
+                                padding: const EdgeInsets.only(left: 32),
+                                child: AnimatedBuilder(
+                                    animation: _timerScaleController,
+                                    builder: (c, v) => Transform.scale(
+                                          child: Text(
+                                            _gameTimer.gameTime,
+                                            textAlign: TextAlign.right,
+                                            style: theme.textTheme.display1,
+                                          ),
+                                          scale: _timerScaleAnimation.value,
+                                        )))),
+                        SizedBox(
+                            width: MediaQuery.of(context).size.width / 4,
+                            child: IconButton(
+                              icon: Icon(Icons.plus_one),
+                              onPressed: _gameTimer.seconds > 0
+                                  ? () async {
+                                      if (await _confirmCoinSpend()) {
+                                        _coinsStore.consumeCoins(kCoinsForOneMin);
+                                        _gameTimer.addTime(60);
+                                        setState(() {});
+                                      }
+                                    }
+                                  : null,
+                            )),
+                      ])
+                    : const Text('Word Twist'),
+                centerTitle: true,
+                actions: twist.gameMode != GameMode.unlimited
+                    ? <Widget>[
+                        Center(
+                            child: Padding(
+                                padding: const EdgeInsets.only(right: 16),
+                                child: GameScoreWidget(
+                                  score: twist.gameScore.score.toString(),
+                                )))
+                      ]
+                    : null,
+              ),
         drawer: MenuDrawer(
           width: MediaQuery.of(context).size.width,
           isGameOver: _gameTimer.isTimeExpired,
@@ -373,15 +379,28 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
           },
           onStoreOpenClick: () {},
         ),
-        body: _isLoading
-            ? Center(
-                child: CircularProgressIndicator(),
-              )
-            : Transform(
-                transform: Matrix4.translation(_getTranslation()),
-                child: Stack(
-                  children: stackChildren,
-                )));
+        body: twist.gameMode == null
+            ? Stack(children: [
+                FlareActor(
+                  'assets/stars.flr',
+                  alignment: Alignment.center,
+                  fit: BoxFit.fill,
+                  animation: 'idle',
+                ),
+                Padding(child:IconButton(
+                  icon: Icon(Icons.menu),
+                  onPressed: () => _scaffoldKey.currentState.openDrawer(),
+                ), padding: EdgeInsets.all(32))
+              ])
+            : _isLoading
+                ? Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : Transform(
+                    transform: Matrix4.translation(_getTranslation()),
+                    child: Stack(
+                      children: stackChildren,
+                    )));
   }
 
   Future<bool> _confirmCoinSpend() {
