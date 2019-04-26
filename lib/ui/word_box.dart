@@ -13,7 +13,7 @@ class AnimatedWordBox extends StatefulWidget {
 class _AnimatedWordBoxState extends State<AnimatedWordBox> with SingleTickerProviderStateMixin {
   AnimationController animationController;
   List<Animation<double>> animations;
-  final BorderSide side = const BorderSide(color: Colors.white54, width: 0.4, style: BorderStyle.solid);
+  final BorderSide side = const BorderSide(color: Colors.white, width: 0.4, style: BorderStyle.solid);
 
   @override
   void initState() {

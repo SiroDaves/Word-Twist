@@ -172,6 +172,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final List<Widget> stackChildren = [
+      FlareActor(
+        'assets/Background.flr',
+        alignment: Alignment.center,
+        fit: BoxFit.fill,
+        animation: 'rotate',
+      ),
       Padding(
         padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
         child: Column(
@@ -216,7 +222,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                   twist.length,
                   (n) => Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: InkWell(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(                        
                           onTap: () {
                             if (twist.isSelected(n)) return;
                             setState(() {
@@ -226,7 +234,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                           child: Container(
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(4),
-                                  border: Border.all(width: .4, color: Colors.white)),
+                                  border: Border.all(width: .5, color: Colors.white)),
                               height: 46,
                               width: 42,
                               child: Center(
@@ -238,8 +246,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                                           : const TextStyle(fontSize: 32),
                                       child: Text(
                                         twist[n],
-                                        // style: TextStyle(fontSize: 36),
-                                      ))))))).toList(),
+                                      )))))))).toList(),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 16),
@@ -365,7 +372,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
               ),
         drawer: MenuDrawer(
           width: MediaQuery.of(context).size.width,
-          isGameOver: _gameTimer.isTimeExpired,
+          isGameOver: _gameTimer.isTimeExpired || twist.gameMode == GameMode.unlimited,
           isUnlimitedUnlocked: true,
           onNewGameClick: (m) {
             _createNewGame(m);
@@ -382,15 +389,17 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
         body: twist.gameMode == null
             ? Stack(children: [
                 FlareActor(
-                  'assets/stars.flr',
+                  'assets/Background.flr',
                   alignment: Alignment.center,
                   fit: BoxFit.fill,
-                  animation: 'idle',
+                  animation: 'rotate',
                 ),
-                Padding(child:IconButton(
-                  icon: Icon(Icons.menu),
-                  onPressed: () => _scaffoldKey.currentState.openDrawer(),
-                ), padding: EdgeInsets.all(32))
+                Padding(
+                    child: IconButton(
+                      icon: Icon(Icons.menu),
+                      onPressed: () => _scaffoldKey.currentState.openDrawer(),
+                    ),
+                    padding: const EdgeInsets.only(top: 32, left: 16))
               ])
             : _isLoading
                 ? Center(
