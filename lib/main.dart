@@ -154,6 +154,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
     }
   }
 
+  bool _isGameOver() {
+    return (twist.gameMode != GameMode.unlimited && _gameTimer.isTimeExpired) ||
+      twist.gameMode == GameMode.unlimited &&
+          twist.possibleWords.length > 0 &&
+          twist.foundWords.length == twist.possibleWords.length;
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if ((_gameTimer.isPaused && state == AppLifecycleState.resumed) ||
@@ -314,7 +321,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
       ));
     }
 
-    if (twist.gameMode != GameMode.unlimited && _gameTimer.isTimeExpired) {
+    if (_isGameOver()) {
       stackChildren.add(GameOverOverlay(
         controller: _gameOverAnimation,
         screenSize: MediaQuery.of(context).size,
