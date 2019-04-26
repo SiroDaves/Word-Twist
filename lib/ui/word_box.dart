@@ -13,7 +13,7 @@ class AnimatedWordBox extends StatefulWidget {
 class _AnimatedWordBoxState extends State<AnimatedWordBox> with SingleTickerProviderStateMixin {
   AnimationController animationController;
   List<Animation<double>> animations;
-  final BorderSide side = const BorderSide(color: Colors.white, width: 0.4, style: BorderStyle.solid);
+  final BorderSide side = const BorderSide(color: Colors.white, width: 0.5, style: BorderStyle.solid);
 
   @override
   void initState() {
@@ -66,7 +66,7 @@ class _AnimatedWordBoxState extends State<AnimatedWordBox> with SingleTickerProv
                                 child: Text(
                               animations[n].value >= 1.5 ? '' : widget.word[n],
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 14),
+                              style: TextStyle(fontSize: 14, color: Colors.white),
                             ))))));
           }).toList(),
         );
