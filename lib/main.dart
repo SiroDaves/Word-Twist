@@ -211,7 +211,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                     }
                   },
                   builtWord: twist.builtWord,
-                  points: twist.gameScore.score,
+                  foundWords: twist.foundWords.length,
                 )),
             Padding(
               padding: const EdgeInsets.only(top: 24),
@@ -223,30 +223,30 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                   (n) => Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(                        
-                          onTap: () {
-                            if (twist.isSelected(n)) return;
-                            setState(() {
-                              twist.toggleSelect(n);
-                            });
-                          },
-                          child: Container(
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(4),
-                                  border: Border.all(width: .5, color: Colors.white)),
-                              height: 46,
-                              width: 42,
-                              child: Center(
-                                  child: AnimatedDefaultTextStyle(
-                                      duration: const Duration(milliseconds: 250),
-                                      curve: Curves.easeOutSine,
-                                      style: twist.isSelected(n)
-                                          ? const TextStyle(fontSize: 0)
-                                          : const TextStyle(fontSize: 32),
-                                      child: Text(
-                                        twist[n],
-                                      )))))))).toList(),
+                          color: Colors.transparent,
+                          child: InkWell(
+                              onTap: () {
+                                if (twist.isSelected(n)) return;
+                                setState(() {
+                                  twist.toggleSelect(n);
+                                });
+                              },
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(4),
+                                      border: Border.all(width: .5, color: Colors.white)),
+                                  height: 46,
+                                  width: 42,
+                                  child: Center(
+                                      child: AnimatedDefaultTextStyle(
+                                          duration: const Duration(milliseconds: 250),
+                                          curve: Curves.easeOutSine,
+                                          style: twist.isSelected(n)
+                                              ? const TextStyle(fontSize: 0)
+                                              : const TextStyle(fontSize: 32),
+                                          child: Text(
+                                            twist[n],
+                                          )))))))).toList(),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 16),
@@ -386,7 +386,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
           },
           onStoreOpenClick: () {},
         ),
-        body: twist.gameMode == null
+        body: twist.gameMode == null || _isLoading
             ? Stack(children: [
                 FlareActor(
                   'assets/Background.flr',
@@ -399,17 +399,18 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                       icon: Icon(Icons.menu),
                       onPressed: () => _scaffoldKey.currentState.openDrawer(),
                     ),
-                    padding: const EdgeInsets.only(top: 32, left: 16))
+                    padding: const EdgeInsets.only(top: 32, left: 16)),
+                _isLoading
+                    ? Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : Container()
               ])
-            : _isLoading
-                ? Center(
-                    child: CircularProgressIndicator(),
-                  )
-                : Transform(
-                    transform: Matrix4.translation(_getTranslation()),
-                    child: Stack(
-                      children: stackChildren,
-                    )));
+            : Transform(
+                transform: Matrix4.translation(_getTranslation()),
+                child: Stack(
+                  children: stackChildren,
+                )));
   }
 
   Future<bool> _confirmCoinSpend() {

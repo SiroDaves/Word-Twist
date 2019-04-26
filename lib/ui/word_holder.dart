@@ -4,9 +4,9 @@ import 'package:word_twist/game/twist.dart';
 class WordHolder extends StatefulWidget {
   final Function onTap;
   final List<String> builtWord;
-  final int points;
+  final int foundWords;
 
-  const WordHolder({Key key, this.onTap, this.points, this.builtWord}) : super(key: key);
+  const WordHolder({Key key, this.onTap, this.foundWords, this.builtWord}) : super(key: key);
 
   @override
   _WordHolderState createState() => _WordHolderState();
@@ -56,7 +56,7 @@ class _WordHolderState extends State<WordHolder> with SingleTickerProviderStateM
 
   @override
   void didUpdateWidget(WordHolder oldWidget) {
-    if (oldWidget.points < widget.points) {
+    if (oldWidget.foundWords < widget.foundWords) {
       animationController
         ..value = 0
         ..forward();
