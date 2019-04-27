@@ -172,7 +172,7 @@ class GameTimer {
 }
 
 class GameScore {
-  static const int _kMaxWords = 170;
+  static const int _kWordLenFactor = 100;
 
   int _score = 0;
   GameMode _gameMode;
@@ -183,7 +183,8 @@ class GameScore {
   void _newGame(GameMode gameMode, List<String> possibleWords) {
     _score = 0;
     _gameMode = gameMode;
-    _scoreMultiplier = (1 / (possibleWords.length / _kMaxWords)).round();
+    final divisor = min(1, (possibleWords.length / _kWordLenFactor));
+    _scoreMultiplier = (1 / divisor).round();
     if (gameMode == GameMode.hard) {
       _scoreMultiplier += (_scoreMultiplier ~/ 2);
     }
