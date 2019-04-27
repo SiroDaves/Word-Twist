@@ -156,9 +156,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
 
   bool _isGameOver() {
     return (twist.gameMode != GameMode.unlimited && _gameTimer.isTimeExpired) ||
-      twist.gameMode == GameMode.unlimited &&
-          twist.possibleWords.length > 0 &&
-          twist.foundWords.length == twist.possibleWords.length;
+        twist.gameMode == GameMode.unlimited &&
+            twist.possibleWords.length > 0 &&
+            twist.foundWords.length == twist.possibleWords.length;
   }
 
   @override
@@ -328,7 +328,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
       ));
     }
 
-    return Scaffold(
+    return  Scaffold(
         key: _scaffoldKey,
         appBar: twist.gameMode == null
             ? null
@@ -401,12 +401,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                   fit: BoxFit.fill,
                   animation: 'rotate',
                 ),
-                Padding(
-                    child: IconButton(
-                      icon: Icon(Icons.menu),
-                      onPressed: () => _scaffoldKey.currentState.openDrawer(),
-                    ),
-                    padding: const EdgeInsets.only(top: 32, left: 16)),
+                twist.gameMode == null
+                    ? Padding(
+                        child: IconButton(
+                          icon: Icon(Icons.menu),
+                          onPressed: () => _scaffoldKey.currentState.openDrawer(),
+                        ),
+                        padding: const EdgeInsets.only(top: 32, left: 16))
+                    : Container(),
                 _isLoading
                     ? Center(
                         child: CircularProgressIndicator(),

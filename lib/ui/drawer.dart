@@ -124,7 +124,7 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
             ),
             Divider(),
             RaisedButton(
-              child: const Text('In Game Store'),
+              child: const Text('Coin Store'),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
               onPressed: widget.onStoreOpenClick,
             ),
