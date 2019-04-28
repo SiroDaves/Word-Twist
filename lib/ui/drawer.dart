@@ -56,14 +56,14 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
             Row(
               children: <Widget>[
                 IconButton(
-                  icon: Icon(Icons.arrow_back),
+                  icon: Icon(Icons.arrow_back, size: 20,),
                   onPressed: () => _controller.forward(),
                 )
               ],
             ),
             Text(
               'New Game',
-              style: theme.textTheme.headline,
+              style: theme.textTheme.subhead,
             ),
             Padding(
               padding: EdgeInsets.symmetric(vertical: 8),
@@ -84,7 +84,7 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
               width: widget.width - 32,
               decoration:
                   BoxDecoration(border: Border.all(color: Colors.white30), borderRadius: BorderRadius.circular(5)),
-              padding: EdgeInsets.all(16),
+              padding: EdgeInsets.all(8),
               child: Column(
                 children: <Widget>[
                   Stack(
@@ -106,7 +106,7 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
                   ),
                   Divider(),
                   const Text(
-                    'Unlimited time. No points.',
+                    'Unlimited time. No points. 20 coins earned for finding all words',
                     textAlign: TextAlign.center,
                   )
                 ],
@@ -138,15 +138,14 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
     return AnimatedBuilder(
         animation: _controller,
         builder: (c, v) => Container(
-              width: widget.width * 0.7,
+              width: widget.width > 600 ? widget.width * 0.7 : widget.width > 400 ? widget.width * 0.8 : widget.width,
               color: const Color(0xFF1F1F1F),
-              padding: const EdgeInsets.only(top: 48, left: 32, right: 32, bottom: 32),
+              padding: const EdgeInsets.only(top: 32, left: 32, right: 32, bottom: 32),
               child: Column(
-                children: <Widget>[
-                  // IconButton(icon: Icon(Icons.close), onPressed: () => Navigator.pop(context),),
+                children: <Widget>[                  
                   Text(
                     'Word Twist',
-                    style: theme.textTheme.display1,
+                    style: theme.textTheme.headline,
                   ),
                   Divider(
                     color: Colors.white70,
@@ -175,11 +174,11 @@ class GameModeHost extends StatelessWidget {
     switch (gameMode) {
       case GameMode.normal:
         btnText = 'Normal';
-        explanation = '2 minute time. Normal points for found words, no negative points on false words.';
+        explanation = '2 minute time. Normal points for found words, no negative points on false words. 1 coin earned for each 100 points';
         break;
       case GameMode.hard:
         btnText = 'Hard';
-        explanation = '2 minute time. 150% points for found words, negative points on false words and on word twist.';
+        explanation = '2 minute time. 150% points for found words, negative points on false words and on word twist. 1 coin earned for each 100 points';
         break;
       case GameMode.unlimited:
         btnText = 'Unlimited';
@@ -190,7 +189,7 @@ class GameModeHost extends StatelessWidget {
     return Container(
       width: width - 32,
       decoration: BoxDecoration(border: Border.all(color: Colors.white30), borderRadius: BorderRadius.circular(5)),
-      padding: EdgeInsets.all(16),
+      padding: EdgeInsets.all(8),
       child: Column(
         children: <Widget>[
           RaisedButton(

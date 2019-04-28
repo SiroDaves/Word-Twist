@@ -378,7 +378,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
             Navigator.pop(context);
           },
           onSolveClick: () {
-            if (_gameOverAnimController.status == AnimationStatus.completed) _gameOverAnimController.reset();
+            if (_gameOverAnimController.status == AnimationStatus.completed && twist.gameMode == GameMode.unlimited) _gameOverAnimController.reset();
             setState(() {
               twist.solveAll();
               Navigator.pop(context);
