@@ -10,6 +10,9 @@
         android:name="io.flutter.app.FlutterApplication"
         android:label="word_twist"
         android:icon="@mipmap/ic_launcher">
+        <meta-data
+                android:name="com.google.android.gms.ads.APPLICATION_ID"
+                android:value="ca-app-pub-9486553430171539~1157453947"/>
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
@@ -23,7 +26,7 @@
                  defined in @style/LaunchTheme). -->
             <meta-data
                 android:name="io.flutter.app.android.SplashScreenUntilFirstFrame"
-                android:value="true" />
+                android:value="true" />            
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

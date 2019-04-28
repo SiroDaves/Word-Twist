@@ -27,6 +27,7 @@ dependencies:
   sqflite: any
   trotter: ^1.0.2
   shared_preferences: ^0.5.2
+  firebase_admob: ^0.8.0+4
 
 dev_dependencies:
   flutter_test:

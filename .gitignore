@@ -9,6 +9,9 @@
 .history
 .svn/
 
+lib/main_ios.dart
+lib/main_android.dart
+
 # IntelliJ related
 *.iml
 *.ipr
