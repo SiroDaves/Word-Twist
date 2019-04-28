@@ -132,7 +132,6 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
       _gameTimer.isTimeExpired;
     });
     if (_gameOverAnimController.status == AnimationStatus.completed) _gameOverAnimController.reset();
-    _gameOverAnimController.forward();
   }
 
   void _onTimeTick() {
@@ -145,10 +144,14 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
   }
 
   bool _isGameOver() {
-    return (twist.gameMode != GameMode.unlimited && _gameTimer.isTimeExpired) ||
-        twist.gameMode == GameMode.unlimited &&
+    final isOver = (twist.gameMode != GameMode.unlimited && _gameTimer.isTimeExpired) ||
+        (twist.gameMode == GameMode.unlimited &&
             twist.possibleWords.length > 0 &&
-            twist.foundWords.length == twist.possibleWords.length;
+            twist.foundWords.length == twist.possibleWords.length);
+    if (isOver && _gameOverAnimController.status == AnimationStatus.dismissed) {      
+      _gameOverAnimController.forward();
+    }
+    return isOver;
   }
 
   @override
@@ -318,7 +321,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
       ));
     }
 
-    return  Scaffold(
+    return Scaffold(
         key: _scaffoldKey,
         appBar: twist.gameMode == null
             ? null
@@ -369,20 +372,25 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
               ),
         drawer: MenuDrawer(
           width: MediaQuery.of(context).size.width,
-          isGameOver: _gameTimer.isTimeExpired || twist.gameMode == GameMode.unlimited,
-          isUnlimitedUnlocked: true,
+          canSolve: !twist.isSolved && (_gameTimer.isTimeExpired || twist.gameMode == GameMode.unlimited),
           onNewGameClick: (m) {
             _createNewGame(m);
             Navigator.pop(context);
           },
           onSolveClick: () {
+            if (_gameOverAnimController.status == AnimationStatus.completed) _gameOverAnimController.reset();
             setState(() {
               twist.solveAll();
               Navigator.pop(context);
             });
           },
           onStoreOpenClick: () {
-            Navigator.push(context, MaterialPageRoute(builder: (c) => CoinStoreWidget(coinsStore: _coinsStore,)));
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (c) => CoinStoreWidget(
+                          coinsStore: _coinsStore,
+                        )));
           },
         ),
         body: twist.gameMode == null || _isLoading

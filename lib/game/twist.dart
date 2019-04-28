@@ -26,6 +26,7 @@ class TwistGame {
   int get length => _letters.length;
   String get sourceLetters => _letters;
   bool isSelected(int i) => selectedIndexes[i];
+  bool get isSolved => possibleWords.length > 0 && possibleWords.length == foundWords.length; 
   GameMode get gameMode => _gameMode;
 
   Future createNewGame(GameMode gameMode) async {
@@ -172,7 +173,7 @@ class GameTimer {
 }
 
 class GameScore {
-  static const int _kWordLenFactor = 100;
+  static const int _kWordLenFactor = 150;
 
   int _score = 0;
   GameMode _gameMode;

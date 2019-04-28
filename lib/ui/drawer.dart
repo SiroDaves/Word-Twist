@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:word_twist/game/twist.dart';
 
 class MenuDrawer extends StatefulWidget {
-  final bool isGameOver;
-  final bool isUnlimitedUnlocked;
+  final bool canSolve;
   final Function(GameMode) onNewGameClick;
   final Function onStoreOpenClick;
   final Function onSolveClick;
@@ -11,8 +10,7 @@ class MenuDrawer extends StatefulWidget {
 
   const MenuDrawer(
       {Key key,
-      @required this.isGameOver,
-      @required this.isUnlimitedUnlocked,
+      @required this.canSolve,
       @required this.width,
       @required this.onNewGameClick,
       @required this.onStoreOpenClick,
@@ -70,40 +68,42 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
             Padding(
               padding: EdgeInsets.symmetric(vertical: 8),
             ),
-            GameModeHost(width: widget.width, gameMode: GameMode.normal, onNewGameClick: widget.onNewGameClick,),
+            GameModeHost(
+              width: widget.width,
+              gameMode: GameMode.normal,
+              onNewGameClick: widget.onNewGameClick,
+            ),
             Divider(),
-            GameModeHost(width: widget.width, gameMode: GameMode.hard, onNewGameClick: widget.onNewGameClick,),
+            GameModeHost(
+              width: widget.width,
+              gameMode: GameMode.hard,
+              onNewGameClick: widget.onNewGameClick,
+            ),
             Divider(),
             Container(
               width: widget.width - 32,
-              decoration: BoxDecoration(border: Border.all(color: Colors.white30), borderRadius: BorderRadius.circular(5)),
+              decoration:
+                  BoxDecoration(border: Border.all(color: Colors.white30), borderRadius: BorderRadius.circular(5)),
               padding: EdgeInsets.all(16),
               child: Column(
                 children: <Widget>[
-                  widget.isUnlimitedUnlocked
-                      ? RaisedButton(
-                          child: Text('Unlimited'),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                          onPressed:
-                              widget.isUnlimitedUnlocked ? () => widget.onNewGameClick(GameMode.unlimited) : null)
-                      : Stack(
-                          children: <Widget>[
-                            Padding(padding: EdgeInsets.all(8), child:  RaisedButton(
-                                child: Text('Unlimited'),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                onPressed: widget.isUnlimitedUnlocked
-                                    ? () => widget.onNewGameClick(GameMode.unlimited)
-                                    : null)),
-                            Positioned(
-                              left: 64,
-                              top: -12,
-                              child: IconButton(
-                                
-                              icon: Icon(Icons.shopping_cart, size: 36,),
-                              onPressed: widget.onStoreOpenClick,
-                            )
-                            )],
-                        ),
+                  Stack(
+                    children: <Widget>[
+                      Padding(
+                          padding: EdgeInsets.all(8),
+                          child: RaisedButton(
+                              child: Text('Unlimited'),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                              onPressed: () => widget.onNewGameClick(GameMode.unlimited))),
+                      Positioned(
+                          left: 72,
+                          top: 0,
+                          child: Icon(
+                              Icons.monetization_on,
+                              size: 36,                                                        
+                          ))
+                    ],
+                  ),
                   Divider(),
                   const Text(
                     'Unlimited time. No points.',
@@ -132,7 +132,7 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
             RaisedButton(
               child: const Text('Solve'),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              onPressed: widget.isGameOver ? widget.onSolveClick : null,
+              onPressed: widget.canSolve ? widget.onSolveClick : null,
             )
           ];
     return AnimatedBuilder(
@@ -161,49 +161,49 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
   }
 }
 
-
 class GameModeHost extends StatelessWidget {
   final double width;
   final Function(GameMode) onNewGameClick;
   final GameMode gameMode;
 
-  const GameModeHost({Key key, @required this.width, @required this.onNewGameClick, @required this.gameMode}) : super(key: key);
+  const GameModeHost({Key key, @required this.width, @required this.onNewGameClick, @required this.gameMode})
+      : super(key: key);
   @override
   Widget build(BuildContext context) {
     var btnText = '';
     var explanation = '';
     switch (gameMode) {
-      case GameMode.normal: 
+      case GameMode.normal:
         btnText = 'Normal';
         explanation = '2 minute time. Normal points for found words, no negative points on false words.';
         break;
-        case GameMode.hard: 
+      case GameMode.hard:
         btnText = 'Hard';
         explanation = '2 minute time. 150% points for found words, negative points on false words and on word twist.';
         break;
-        case GameMode.unlimited: 
+      case GameMode.unlimited:
         btnText = 'Unlimited';
         explanation = 'Unlimited time. No points';
         break;
       default:
     }
     return Container(
-              width: width - 32,
-              decoration: BoxDecoration(border: Border.all(color: Colors.white30), borderRadius: BorderRadius.circular(5)),
-              padding: EdgeInsets.all(16),
-              child: Column(
-                children: <Widget>[
-                  RaisedButton(
-                      child: Text(btnText),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      onPressed: () => onNewGameClick(gameMode)),
-                  Divider(),
-                  Text(
-                    explanation,
-                    textAlign: TextAlign.center,
-                  )
-                ],
-              ),
-            );
+      width: width - 32,
+      decoration: BoxDecoration(border: Border.all(color: Colors.white30), borderRadius: BorderRadius.circular(5)),
+      padding: EdgeInsets.all(16),
+      child: Column(
+        children: <Widget>[
+          RaisedButton(
+              child: Text(btnText),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              onPressed: () => onNewGameClick(gameMode)),
+          Divider(),
+          Text(
+            explanation,
+            textAlign: TextAlign.center,
+          )
+        ],
+      ),
+    );
   }
 }

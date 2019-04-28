@@ -20,6 +20,10 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> {
         setState(() {
           _adLoaded = true;
         });
+      } else if (event == RewardedVideoAdEvent.completed) {
+        setState(() {
+          _adLoaded = false;
+        });
       }
       print(event);
       if (event == RewardedVideoAdEvent.rewarded) {
@@ -28,17 +32,25 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> {
         });
       }
     };
-    RewardedVideoAd.instance.load(
-        adUnitId: RewardedVideoAd.testAdUnitId,
-        targetingInfo: MobileAdTargetingInfo(
-          keywords: <String>['flutterio', 'beautiful apps'],
-          contentUrl: 'https://flutter.io',
-          birthday: DateTime.now(),
-          childDirected: false,
-          designedForFamilies: false,
-          gender: MobileAdGender.male, // or MobileAdGender.female, MobileAdGender.unknown
-          testDevices: <String>[], // Android emulators are considered test devices
-        ));
+    RewardedVideoAd.instance
+        .load(
+            adUnitId: RewardedVideoAd.testAdUnitId,
+            targetingInfo: MobileAdTargetingInfo(
+              keywords: <String>['flutterio', 'beautiful apps'],
+              contentUrl: 'https://flutter.io',
+              birthday: DateTime.now(),
+              childDirected: false,
+              designedForFamilies: false,
+              gender: MobileAdGender.male, // or MobileAdGender.female, MobileAdGender.unknown
+              testDevices: <String>[], // Android emulators are considered test devices
+            ))
+        .then((v) {
+      if (v) {
+        try {
+          RewardedVideoAd.instance.show();
+        } catch (e) {}
+      }
+    });
     super.initState();
   }
 
@@ -66,24 +78,55 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> {
                 child: Column(
                   children: <Widget>[
                     Container(
-                      padding: EdgeInsets.all(8),
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
                       decoration: BoxDecoration(
                           border: Border.all(color: Colors.white30), borderRadius: BorderRadius.circular(5)),
                       child: Text(
-                        'Earn coins by playing the game. For every 100 points you earn 1 coin.\n\nVideo ads reward 2 coins.',
+                        'Coins are used for extending the game time or playing the game in unlimited time mode.\n\nEarn coins by playing the game. For every 100 points you earn 1 coin.\n\nVideo ads reward 2 coins.',
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.subhead,
                       ),
                     ),
-                    Text('Coins: ${widget.coinsStore.coins}'),
+                    Divider(),
+                    Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Text(
+                        'Coins: ${widget.coinsStore.coins}',
+                        style: Theme.of(context).textTheme.display1,
+                      ),
+                    ),
+                    Divider(),
                     RaisedButton(
-                      child: Text('Rewarded Coins'),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
+                        Text('Rewarded Coins'),                        
+                        // _adLoaded
+                        //     ? Container()
+                        //     : Container(
+                        //       padding: EdgeInsets.only(left: 8),
+                        //       child: SizedBox(
+                        //         width: 20,
+                        //         height: 20,
+                        //         child: CircularProgressIndicator(
+                        //           strokeWidth: 2,
+                        //         )))
+                      ]),
                       onPressed: _adLoaded
                           ? () {
                               RewardedVideoAd.instance.show();
                             }
                           : null,
-                    )
+                    ),
+                    Divider(),
+                    RaisedButton(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        child: Text('Buy 40 coins - \$0.49'),
+                        onPressed: () {}),
+                    Divider(),
+                    RaisedButton(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        child: Text('Buy 100 coins - \$0.99'),
+                        onPressed: () {}),
                   ],
                 )))
       ]),
