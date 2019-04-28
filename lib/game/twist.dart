@@ -173,7 +173,7 @@ class GameTimer {
 }
 
 class GameScore {
-  static const int _kWordLenFactor = 60;
+  static const int _kWordLenFactor = 80;
 
   int _score = 0;
   GameMode _gameMode;

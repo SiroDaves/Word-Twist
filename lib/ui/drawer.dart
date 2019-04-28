@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:word_twist/game/coins_store.dart';
 import 'package:word_twist/game/twist.dart';
+
+const kCoinsToPlayUnlimited = 10;
 
 class MenuDrawer extends StatefulWidget {
   final bool canSolve;
@@ -7,6 +10,7 @@ class MenuDrawer extends StatefulWidget {
   final Function onStoreOpenClick;
   final Function onSolveClick;
   final double width;
+  final CoinsStore coinsStore;
 
   const MenuDrawer(
       {Key key,
@@ -14,7 +18,8 @@ class MenuDrawer extends StatefulWidget {
       @required this.width,
       @required this.onNewGameClick,
       @required this.onStoreOpenClick,
-      @required this.onSolveClick})
+      @required this.onSolveClick,
+      @required this.coinsStore})
       : super(key: key);
 
   @override
@@ -56,7 +61,10 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
             Row(
               children: <Widget>[
                 IconButton(
-                  icon: Icon(Icons.arrow_back, size: 20,),
+                  icon: Icon(
+                    Icons.arrow_back,
+                    size: 20,
+                  ),
                   onPressed: () => _controller.forward(),
                 )
               ],
@@ -94,19 +102,21 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
                           child: RaisedButton(
                               child: Text('Unlimited'),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                              onPressed: () => widget.onNewGameClick(GameMode.unlimited))),
+                              onPressed: widget.coinsStore.coins >= kCoinsToPlayUnlimited
+                                  ? () => widget.onNewGameClick(GameMode.unlimited)
+                                  : null)),
                       Positioned(
-                          left: 72,
+                          left: 82,
                           top: 0,
                           child: Icon(
-                              Icons.monetization_on,
-                              size: 36,                                                        
+                            Icons.monetization_on,
+                            size: 24,
                           ))
                     ],
                   ),
                   Divider(),
                   const Text(
-                    'Unlimited time. No points. 20 coins earned for finding all words',
+                    'Unlimited time. No points. 20 coins earned for finding all words.',
                     textAlign: TextAlign.center,
                   )
                 ],
@@ -142,7 +152,7 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
               color: const Color(0xFF1F1F1F),
               padding: const EdgeInsets.only(top: 32, left: 32, right: 32, bottom: 32),
               child: Column(
-                children: <Widget>[                  
+                children: <Widget>[
                   Text(
                     'Word Twist',
                     style: theme.textTheme.headline,
@@ -174,11 +184,12 @@ class GameModeHost extends StatelessWidget {
     switch (gameMode) {
       case GameMode.normal:
         btnText = 'Normal';
-        explanation = '2 minute time. Normal points for found words, no negative points on false words. 1 coin earned for each 100 points';
+        explanation = '2 minute time. Standard points for found words. 1 coin earned for each 100 points.';
         break;
       case GameMode.hard:
         btnText = 'Hard';
-        explanation = '2 minute time. 150% points for found words, negative points on false words and on word twist. 1 coin earned for each 100 points';
+        explanation =
+            '2 minute time. 150% points for found words, negative points on false words and on word twist. 1 coin earned for each 100 points.';
         break;
       case GameMode.unlimited:
         btnText = 'Unlimited';

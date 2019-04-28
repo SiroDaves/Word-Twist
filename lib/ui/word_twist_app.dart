@@ -15,6 +15,7 @@ import 'package:word_twist/ui/coins_overlay.dart';
 import 'package:word_twist/ui/drawer.dart';
 import 'package:word_twist/ui/game_over_overlay.dart';
 import 'package:word_twist/ui/points.dart';
+import 'package:word_twist/ui/spend_coins_dialog.dart';
 import 'package:word_twist/ui/word_box.dart';
 import 'package:word_twist/ui/word_holder.dart';
 
@@ -51,8 +52,10 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
   final UserPrefs _userPrefs = UserPrefsImpl.instance();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
 
+  int _coinsEarned = 0;
+
   bool _isLoading = false;
-  bool _coinsEarned = false;
+  bool _coinsChanged = false;
 
   GameTimer _gameTimer;
   CoinsStore _coinsStore;
@@ -78,7 +81,8 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
       ..addStatusListener((s) {
         if (s == AnimationStatus.completed) {
           setState(() {
-            _coinsEarned = false;
+            _coinsChanged = false;
+            _coinsEarned = 0;
           });
           _coinsAnimController.value = 0;
         }
@@ -148,7 +152,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
         (twist.gameMode == GameMode.unlimited &&
             twist.possibleWords.length > 0 &&
             twist.foundWords.length == twist.possibleWords.length);
-    if (isOver && _gameOverAnimController.status == AnimationStatus.dismissed) {      
+    if (isOver && _gameOverAnimController.status == AnimationStatus.dismissed) {
       _gameOverAnimController.forward();
     }
     return isOver;
@@ -283,12 +287,22 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
                         twist.foundWords.add(w);
                         twist.resetSelection();
                       });
-                      final coins = _coinsStore.scoreChanged(twist.gameScore.score);
-                      if (coins > 0) {
+                      if (twist.gameMode == GameMode.unlimited && twist.isSolved) {
                         setState(() {
-                          _coinsEarned = true;
+                          _coinsEarned = 20;
+                          _coinsChanged = true;
                           _coinsAnimController.forward();
+                          _coinsStore.coinEarned(_coinsEarned);
                         });
+                      } else {
+                        final coins = _coinsStore.scoreChanged(twist.gameScore.score);
+                        if (coins > 0) {
+                          setState(() {
+                            _coinsEarned = coins;
+                            _coinsChanged = true;
+                            _coinsAnimController.forward();
+                          });
+                        }
                       }
                     } else {
                       setState(() {
@@ -307,10 +321,11 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
       )
     ];
 
-    if (_coinsEarned) {
+    if (_coinsEarned > 0 && _coinsChanged) {
       stackChildren.add(CoinsOverlay(
         controller: _coinsAnimController,
         screenSize: MediaQuery.of(context).size,
+        coinsEarned: _coinsEarned,
       ));
     }
 
@@ -371,6 +386,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
                     : null,
               ),
         drawer: MenuDrawer(
+          coinsStore: _coinsStore,
           width: MediaQuery.of(context).size.width,
           canSolve: !twist.isSolved && (_gameTimer.isTimeExpired || twist.gameMode == GameMode.unlimited),
           onNewGameClick: (m) {
@@ -378,7 +394,8 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
             Navigator.pop(context);
           },
           onSolveClick: () {
-            if (_gameOverAnimController.status == AnimationStatus.completed && twist.gameMode == GameMode.unlimited) _gameOverAnimController.reset();
+            if (_gameOverAnimController.status == AnimationStatus.completed && twist.gameMode == GameMode.unlimited)
+              _gameOverAnimController.reset();
             setState(() {
               twist.solveAll();
               Navigator.pop(context);
@@ -433,6 +450,8 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
               completer: completer,
               checkedCallback: (v) => _userPrefs.setBool(_kDontAskAgianCoins, true),
               coins: _coinsStore.coins,
+              title: 'Extend Time',
+              body: 'Do you want to spend $kCoinsForOneMin coins to extend game time by 1 minute?',
             ),
       );
       return completer.future;
@@ -441,71 +460,3 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
 }
 
 const _kDontAskAgianCoins = 'DontAskAgainCoins';
-
-class SpendCoinsAlertDialog extends StatefulWidget {
-  final Completer<bool> completer;
-  final Function(bool) checkedCallback;
-  final int coins;
-
-  const SpendCoinsAlertDialog({Key key, this.completer, this.checkedCallback, this.coins}) : super(key: key);
-
-  @override
-  _SpendCoinsAlertDialogState createState() => _SpendCoinsAlertDialogState();
-}
-
-class _SpendCoinsAlertDialogState extends State<SpendCoinsAlertDialog> {
-  bool checked = false;
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text("Extend Time"),
-      content: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            const Text("Do you want to spend $kCoinsForOneMin coins to extend game time by 1 minute?",
-                textAlign: TextAlign.start),
-            Text(
-              '\nCurrently you have ${widget.coins} coins.',
-              textAlign: TextAlign.start,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-            ),
-            Row(
-              children: <Widget>[
-                Checkbox(
-                  value: checked,
-                  onChanged: (v) {
-                    setState(() {
-                      checked = v;
-                    });
-                    widget.checkedCallback(v);
-                  },
-                ),
-                const Text("Don't ask again")
-              ],
-            )
-          ]),
-      actions: <Widget>[
-        FlatButton(
-          child: const Text("No"),
-          onPressed: () {
-            Navigator.of(context).pop();
-            widget.completer.complete(false);
-          },
-        ),
-        FlatButton(
-          child: const Text("Yes"),
-          onPressed: widget.coins >= kCoinsForOneMin
-              ? () {
-                  Navigator.of(context).pop();
-                  widget.completer.complete(true);
-                }
-              : null,
-        ),
-      ],
-    );
-  }
-}

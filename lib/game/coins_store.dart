@@ -21,12 +21,12 @@ class CoinsStore {
     final oldVal = _lastScore == 0 ? 0 : _lastScore ~/ _kPoints;
     _lastScore = newScore;
     if (newVal > oldVal) {
-      _coinEarned(newVal - oldVal);
+      coinEarned(newVal - oldVal);
     }
     return newVal - oldVal;
   }
 
-  void _coinEarned(int amount) {    
+  void coinEarned(int amount) {    
     _coins += amount;
     _userPrefs.setInt(_kCoinsKey, _coins);
   }
