@@ -27,7 +27,7 @@ class WordsDataSource implements WordsRepository {
     try {
       await file.writeAsBytes(buffer.asUint8List(db.offsetInBytes, db.lengthInBytes),
           mode: FileMode.write, flush: true);
-    } on FileSystemException catch (e) {
+    } on FileSystemException {
       // if (Platform.isAndroid) {
       //   final NativeMethods _nativeMethods = new PlatformChannel();
       //   await _nativeMethods.callNative(kCopyDb, {'dbData': buffer.asUint8List()});
