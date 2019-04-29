@@ -181,13 +181,13 @@ class GameScore {
 
   int get score => _score;
 
-  void _newGame(GameMode gameMode, List<String> possibleWords) {
+  void _newGame(GameMode gameMode, List<String> possibleWords) {    
     _score = 0;
     _gameMode = gameMode;
     final divisor = min(1, (possibleWords.length / _kWordLenFactor));
     _scoreMultiplier = (1 / divisor).round();
     if (gameMode == GameMode.hard) {
-      _scoreMultiplier += (_scoreMultiplier ~/ 2);
+      _scoreMultiplier *= 2;
     }
   }
 

@@ -4,11 +4,12 @@ const _kPoints = 100;
 const _kCoinsKey = 'coins';
 const kCoinsForOneMin = 5;
 const kCoinsEarnedForRewardAd = 2;
+const kCoinsForPoints = 1;
 
 class CoinsStore {
   final UserPrefs _userPrefs;
 
-  int _lastScore = 0;
+  int _lastLevel = 0;
   int _coins = 0;
 
   int get coins => _coins;
@@ -18,13 +19,12 @@ class CoinsStore {
   }
 
   int scoreChanged(int newScore) {
-    final newVal = newScore ~/ _kPoints;
-    final oldVal = _lastScore == 0 ? 0 : _lastScore ~/ _kPoints;
-    _lastScore = newScore;
-    if (newVal > oldVal) {
-      coinEarned(newVal - oldVal);
+    final newLevel = newScore ~/ _kPoints;    
+    if (newLevel > _lastLevel) {
+      coinEarned(kCoinsForPoints);
+      _lastLevel = newLevel;
     }
-    return newVal - oldVal;
+    return kCoinsForPoints;
   }
 
   void onRewardedVideoPlayed() {
@@ -46,6 +46,6 @@ class CoinsStore {
   }
 
   void reset() {
-    _lastScore = 0;
+    _lastLevel = 0;
   }
 }

@@ -150,7 +150,7 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
         builder: (c, v) => Container(
               width: widget.width > 600 ? widget.width * 0.7 : widget.width > 400 ? widget.width * 0.8 : widget.width,
               color: const Color(0xFF1F1F1F),
-              padding: const EdgeInsets.only(top: 40, left: 32, right: 32, bottom: 32),
+              padding: const EdgeInsets.only(top: 48, left: 32, right: 32, bottom: 32),
               child: Column(
                 children: <Widget>[
                   Text(
@@ -189,7 +189,7 @@ class GameModeHost extends StatelessWidget {
       case GameMode.hard:
         btnText = 'Hard';
         explanation =
-            '2 minute time. 150% points for found words, negative points on false words and on word twist. 1 coin earned for each 100 points.';
+            '2 minute time. Double points for found words, negative points on false words and on word twist. 1 coin earned for each 100 points.';
         break;
       case GameMode.unlimited:
         btnText = 'Unlimited';
