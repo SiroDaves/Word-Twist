@@ -102,9 +102,7 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
                           child: RaisedButton(
                               child: Text('Unlimited'),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                              onPressed: widget.coinsStore.coins >= kCoinsToPlayUnlimited
-                                  ? () => widget.onNewGameClick(GameMode.unlimited)
-                                  : null)),
+                              onPressed: () => widget.onNewGameClick(GameMode.unlimited))),
                       Positioned(
                           left: 82,
                           top: 0,

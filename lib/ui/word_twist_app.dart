@@ -393,31 +393,48 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
                       ]
                     : null,
               ),
-        drawer: MenuDrawer(
-          coinsStore: _coinsStore,
-          width: MediaQuery.of(context).size.width,
-          canSolve: !twist.isSolved && (_gameTimer.isTimeExpired || twist.gameMode == GameMode.unlimited),
-          onNewGameClick: (m) {
-            _createNewGame(m);
-            Navigator.pop(context);
-          },
-          onSolveClick: () {
-            if (_gameOverAnimController.status == AnimationStatus.completed && twist.gameMode == GameMode.unlimited)
-              _gameOverAnimController.reset();
-            setState(() {
-              twist.solveAll();
-              Navigator.pop(context);
-            });
-          },
-          onStoreOpenClick: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (c) => CoinStoreWidget(
-                          coinsStore: _coinsStore,
-                        )));
-          },
-        ),
+        drawer: Builder(
+            builder: (c) => MenuDrawer(
+                  coinsStore: _coinsStore,
+                  width: MediaQuery.of(context).size.width,
+                  canSolve: !twist.isSolved && (_gameTimer.isTimeExpired || twist.gameMode == GameMode.unlimited),
+                  onNewGameClick: (m) async {
+                    if (m == GameMode.unlimited) {
+                      if (_coinsStore.coins < kCoinsToPlayUnlimited) {
+                        Navigator.pop(context);
+                        Scaffold.of(c).showSnackBar(SnackBar(
+                          content: Text(
+                            'Not enough coins to play Unlimited mode.',
+                            textAlign: TextAlign.center,
+                          ),
+                        ));
+                      } else if (await _confirmPlayUnlimited()) {
+                        _coinsStore.consumeCoins(kCoinsToPlayUnlimited);
+                        _createNewGame(m);
+                        Navigator.pop(context);
+                      }
+                    } else {
+                      _createNewGame(m);
+                      Navigator.pop(context);
+                    }
+                  },
+                  onSolveClick: () {
+                    if (_gameOverAnimController.status == AnimationStatus.completed &&
+                        twist.gameMode == GameMode.unlimited) _gameOverAnimController.reset();
+                    setState(() {
+                      twist.solveAll();
+                      Navigator.pop(context);
+                    });
+                  },
+                  onStoreOpenClick: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (c) => CoinStoreWidget(
+                                  coinsStore: _coinsStore,
+                                )));
+                  },
+                )),
         body: twist.gameMode == null || _isLoading
             ? Stack(children: [
                 FlareActor(
@@ -456,7 +473,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
         context: context,
         builder: (c) => SpendCoinsAlertDialog(
               completer: completer,
-              checkedCallback: (v) => _userPrefs.setBool(_kDontAskAgianCoins, true),
+              checkedCallback: (v) => _userPrefs.setBool(_kDontAskAgianCoins, v),
               coins: _coinsStore.coins,
               title: 'Extend Time',
               body: 'Do you want to spend $kCoinsForOneMin coins to extend game time by 1 minute?',
@@ -465,6 +482,26 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
       return completer.future;
     }
   }
+
+  Future<bool> _confirmPlayUnlimited() {
+    if (_userPrefs.getBool(_kDontAskAgianUnlimited) ?? false) {
+      return Future.value(true);
+    } else {
+      final completer = new Completer<bool>();
+      showDialog(
+        context: context,
+        builder: (c) => SpendCoinsAlertDialog(
+              completer: completer,
+              checkedCallback: (v) => _userPrefs.setBool(_kDontAskAgianUnlimited, v),
+              coins: _coinsStore.coins,
+              title: 'Play Unlimited Mode',
+              body: 'Do you want to spend $kCoinsToPlayUnlimited coins to to play the game in Unlimited mode?',
+            ),
+      );
+      return completer.future;
+    }
+  }
 }
 
 const _kDontAskAgianCoins = 'DontAskAgainCoins';
+const _kDontAskAgianUnlimited = 'DontAskAgainUnlimited';
