@@ -3,6 +3,7 @@ import 'package:word_twist/data/user_prefs.dart';
 const _kPoints = 100;
 const _kCoinsKey = 'coins';
 const kCoinsForOneMin = 5;
+const kCoinsEarnedForRewardAd = 2;
 
 class CoinsStore {
   final UserPrefs _userPrefs;
@@ -24,6 +25,10 @@ class CoinsStore {
       coinEarned(newVal - oldVal);
     }
     return newVal - oldVal;
+  }
+
+  void onRewardedVideoPlayed() {
+    coinEarned(kCoinsEarnedForRewardAd);
   }
 
   void coinEarned(int amount) {    

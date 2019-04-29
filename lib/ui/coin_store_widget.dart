@@ -1,7 +1,7 @@
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
-import 'package:word_twist/game/coins_store.dart' show CoinsStore;
+import 'package:word_twist/game/coins_store.dart' show CoinsStore, kCoinsEarnedForRewardAd;
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:word_twist/ui/coins_overlay.dart';
 
@@ -40,6 +40,7 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
       print(event);
       if (event == RewardedVideoAdEvent.rewarded) {
         setState(() {
+          widget.coinsStore.onRewardedVideoPlayed();
           _coinsEarned = true;
           _coinsAnimController.forward();
         });
@@ -83,7 +84,7 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
         // ),
         SafeArea(
             child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 32),
                 child: Column(
                   children: <Widget>[
                     Container(
@@ -95,8 +96,7 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.subhead,
                       ),
-                    ),
-                    Divider(),
+                    ),                    
                     Padding(
                       padding: EdgeInsets.all(16),
                       child: Text(
@@ -138,7 +138,7 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
             ? CoinsOverlay(
                 controller: _coinsAnimController,
                 screenSize: MediaQuery.of(context).size,
-                coinsEarned: 2,
+                coinsEarned: kCoinsEarnedForRewardAd,
               )
             : Container()
       ]),
