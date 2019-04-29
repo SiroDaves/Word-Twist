@@ -108,17 +108,7 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
                     RaisedButton(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       child: Row(mainAxisSize: MainAxisSize.min, children: [
-                        Text('Rewarded Coins'),
-                        // _adLoaded
-                        //     ? Container()
-                        //     : Container(
-                        //       padding: EdgeInsets.only(left: 8),
-                        //       child: SizedBox(
-                        //         width: 20,
-                        //         height: 20,
-                        //         child: CircularProgressIndicator(
-                        //           strokeWidth: 2,
-                        //         )))
+                        Text('Rewarded Coins'),                        
                       ]),
                       onPressed: _adLoaded ? _playRewardedVideo : null,
                     ),
@@ -145,16 +135,13 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
     );
   }
 
-  void _playRewardedVideo() {
-    print('playing video');
+  void _playRewardedVideo() {    
     if (_event == RewardedVideoAdEvent.closed ||
         _event == RewardedVideoAdEvent.completed ||
         _event == RewardedVideoAdEvent.failedToLoad ||
         _event == RewardedVideoAdEvent.rewarded) return;
-    RewardedVideoAd.instance.show().catchError((e) async {
-      print('exception caught');
+    RewardedVideoAd.instance.show().catchError((e) async {      
       await Future.delayed(const Duration(milliseconds: 1000));
-      print('playing video again');
       _playRewardedVideo();
     });
   }

@@ -357,20 +357,28 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
                                           ),
                                           scale: _timerScaleAnimation.value,
                                         )))),
-                        SizedBox(
-                            width: MediaQuery.of(context).size.width / 4,
-                            child: IconButton(
-                              icon: Icon(Icons.plus_one),
-                              onPressed: _gameTimer.seconds > 0
-                                  ? () async {
-                                      if (await _confirmCoinSpend()) {
-                                        _coinsStore.consumeCoins(kCoinsForOneMin);
-                                        _gameTimer.addTime(60);
-                                        setState(() {});
-                                      }
-                                    }
-                                  : null,
-                            )),
+                        Builder(
+                            builder: (c) => SizedBox(
+                                width: MediaQuery.of(context).size.width / 4,
+                                child: IconButton(
+                                  icon: Icon(Icons.plus_one),
+                                  onPressed: _gameTimer.seconds > 0
+                                      ? () async {
+                                          if (_coinsStore.coins < kCoinsForOneMin) {
+                                            Scaffold.of(c).showSnackBar(SnackBar(
+                                              content: Text(
+                                                'Not enough coins to extend the game time.',
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ));
+                                          } else if (await _confirmCoinSpend()) {
+                                            _coinsStore.consumeCoins(kCoinsForOneMin);
+                                            _gameTimer.addTime(60);
+                                            setState(() {});
+                                          }
+                                        }
+                                      : null,
+                                ))),
                       ])
                     : const Text('Word Twist'),
                 centerTitle: true,
@@ -441,7 +449,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
 
   Future<bool> _confirmCoinSpend() {
     if (_userPrefs.getBool(_kDontAskAgianCoins) ?? false) {
-      return Future.value(_coinsStore.coins >= kCoinsForOneMin);
+      return Future.value(true);
     } else {
       final completer = new Completer<bool>();
       showDialog(
