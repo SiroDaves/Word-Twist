@@ -96,7 +96,7 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.subhead,
                       ),
-                    ),                    
+                    ),
                     Padding(
                       padding: EdgeInsets.all(16),
                       child: Text(
@@ -145,16 +145,17 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
     );
   }
 
-  void _playRewardedVideo() async {
+  void _playRewardedVideo() {
+    print('playing video');
     if (_event == RewardedVideoAdEvent.closed ||
         _event == RewardedVideoAdEvent.completed ||
         _event == RewardedVideoAdEvent.failedToLoad ||
         _event == RewardedVideoAdEvent.rewarded) return;
-    try {
-      RewardedVideoAd.instance.show();
-    } on PlatformException {
+    RewardedVideoAd.instance.show().catchError((e) async {
+      print('exception caught');
       await Future.delayed(const Duration(milliseconds: 1000));
+      print('playing video again');
       _playRewardedVideo();
-    }
+    });
   }
 }

@@ -187,7 +187,7 @@ class GameScore {
     final divisor = min(1, (possibleWords.length / _kWordLenFactor));
     _scoreMultiplier = (1 / divisor).round();
     if (gameMode == GameMode.hard) {
-      _scoreMultiplier *= 2;
+      _scoreMultiplier += (_scoreMultiplier ~/ 2);
     }
   }
 

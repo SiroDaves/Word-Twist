@@ -19,19 +19,20 @@ class CoinsStore {
   }
 
   int scoreChanged(int newScore) {
-    final newLevel = newScore ~/ _kPoints;    
-    if (newLevel > _lastLevel) {
+    final newLevel = newScore ~/ _kPoints;
+    final lvlUp = newLevel > _lastLevel;
+    if (lvlUp) {
       coinEarned(kCoinsForPoints);
       _lastLevel = newLevel;
     }
-    return kCoinsForPoints;
+    return lvlUp ? kCoinsForOneMin : 0;
   }
 
   void onRewardedVideoPlayed() {
     coinEarned(kCoinsEarnedForRewardAd);
   }
 
-  void coinEarned(int amount) {    
+  void coinEarned(int amount) {
     _coins += amount;
     _userPrefs.setInt(_kCoinsKey, _coins);
   }

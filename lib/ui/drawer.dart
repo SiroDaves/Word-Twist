@@ -189,7 +189,7 @@ class GameModeHost extends StatelessWidget {
       case GameMode.hard:
         btnText = 'Hard';
         explanation =
-            '2 minute time. Double points for found words, negative points on false words and on word twist. 1 coin earned for each 100 points.';
+            '2 minute time. 150% points for found words, negative points on false words and on word twist. 1 coin earned for each 100 points.';
         break;
       case GameMode.unlimited:
         btnText = 'Unlimited';
