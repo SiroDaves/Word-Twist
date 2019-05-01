@@ -1,8 +1,6 @@
 import 'package:firebase_admob/firebase_admob.dart';
-import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:word_twist/game/coins_store.dart' show CoinsStore, kCoinsEarnedForRewardAd;
-import 'package:flutter/services.dart' show PlatformException;
 import 'package:word_twist/ui/coins_overlay.dart';
 
 class CoinStoreWidget extends StatefulWidget {
@@ -17,6 +15,7 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
   AnimationController _coinsAnimController;
   bool _adLoaded = false;
   bool _coinsEarned = false;
+  bool _rewarded = false;
   RewardedVideoAdEvent _event = RewardedVideoAdEvent.leftApplication;
 
   @override
@@ -32,26 +31,26 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
       });
     RewardedVideoAd.instance.listener = (RewardedVideoAdEvent event, {String rewardType, int rewardAmount}) {
       _event = event;
-      if (event == RewardedVideoAdEvent.completed || event == RewardedVideoAdEvent.closed) {
-        setState(() {
-          _adLoaded = false;
-        });
-      }
       print(event);
       if (event == RewardedVideoAdEvent.rewarded) {
-        setState(() {
-          widget.coinsStore.onRewardedVideoPlayed();
-          _coinsEarned = true;
-          _coinsAnimController.forward();
-        });
+        _rewarded = true;
       }
+      if (event == RewardedVideoAdEvent.completed || event == RewardedVideoAdEvent.closed) {
+        setState(() {
+          if (_rewarded) {
+            _coinsEarned = true;
+            widget.coinsStore.onRewardedVideoPlayed();
+            _coinsAnimController.forward();
+            _rewarded = false;
+          }
+          _adLoaded = false;
+        });
+      }      
     };
     RewardedVideoAd.instance
         .load(
             adUnitId: RewardedVideoAd.testAdUnitId,
-            targetingInfo: MobileAdTargetingInfo(
-              keywords: <String>['flutterio', 'beautiful apps'],
-              contentUrl: 'https://flutter.io',
+            targetingInfo: MobileAdTargetingInfo(              
               childDirected: false,
               testDevices: <String>[], // Android emulators are considered test devices
             ))
@@ -76,12 +75,7 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
       appBar: AppBar(
         title: Text('Coin Store'),
       ),
-      body: Stack(children: [
-        // FlareActor(
-        //   'assets/stars.flr',
-        //   animation: 'idle',
-        //   fit: BoxFit.fill,
-        // ),
+      body: Stack(children: [        
         SafeArea(
             child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 32, vertical: 32),
