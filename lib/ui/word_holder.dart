@@ -20,6 +20,7 @@ class _WordHolderState extends State<WordHolder> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return AnimatedBuilder(
         animation: animationController,
         builder: (c, v) => Material(
@@ -38,7 +39,7 @@ class _WordHolderState extends State<WordHolder> with SingleTickerProviderStateM
                               .map((n) => Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 6),
                                   child: Container(
-                                      height: 46,
+                                      height: size.width < 500 ? 42 : 46,
                                       child: Center(
                                           child: AnimatedDefaultTextStyle(
                                         child: Text(

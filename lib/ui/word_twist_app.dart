@@ -192,7 +192,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
           children: <Widget>[
             Expanded(
                 child: Padding(
-                    padding: const EdgeInsets.only(bottom: 24, top: 24),
+                    padding: EdgeInsets.symmetric(vertical: size.width < 500 ? 16 : 24),
                     child: GridView.count(
                       childAspectRatio: 5,
                       padding: EdgeInsets.all(0),
@@ -220,7 +220,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
                   foundWords: twist.foundWords.length,
                 )),
             Padding(
-              padding: const EdgeInsets.only(top: 24),
+              padding: EdgeInsets.only(top: size.width < 500 ? 16 : 24),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -241,7 +241,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(4),
                                       border: Border.all(width: .5, color: Colors.white)),
-                                  height: 46,
+                                  height: size.width < 500 ? 40 : 46,
                                   width: size.width < 500 ? 38 : 42,
                                   child: Center(
                                       child: AnimatedDefaultTextStyle(
