@@ -85,7 +85,8 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
         SafeArea(
             child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 32, vertical: 32),
-                child: Column(
+                child: SingleChildScrollView(
+                    child: Column(
                   children: <Widget>[
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
@@ -102,13 +103,14 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
                       child: Text(
                         'Coins: ${widget.coinsStore.coins}',
                         style: Theme.of(context).textTheme.display1,
+                        textAlign: TextAlign.center,
                       ),
                     ),
                     Divider(),
                     RaisedButton(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       child: Row(mainAxisSize: MainAxisSize.min, children: [
-                        Text('Rewarded Coins'),                        
+                        Text('Rewarded Coins'),
                       ]),
                       onPressed: _adLoaded ? _playRewardedVideo : null,
                     ),
@@ -123,7 +125,7 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
                         child: Text('Buy 100 coins - \$0.99'),
                         onPressed: null),
                   ],
-                ))),
+                )))),
         _coinsEarned
             ? CoinsOverlay(
                 controller: _coinsAnimController,
@@ -135,12 +137,12 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
     );
   }
 
-  void _playRewardedVideo() {    
+  void _playRewardedVideo() {
     if (_event == RewardedVideoAdEvent.closed ||
         _event == RewardedVideoAdEvent.completed ||
         _event == RewardedVideoAdEvent.failedToLoad ||
         _event == RewardedVideoAdEvent.rewarded) return;
-    RewardedVideoAd.instance.show().catchError((e) async {      
+    RewardedVideoAd.instance.show().catchError((e) async {
       await Future.delayed(const Duration(milliseconds: 1000));
       _playRewardedVideo();
     });
