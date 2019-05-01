@@ -2,7 +2,8 @@ import 'package:word_twist/data/user_prefs.dart';
 
 const _kPoints = 100;
 const _kCoinsKey = 'coins';
-const kCoinsForOneMin = 5;
+const kCoinsForOneMin = 2;
+const kCoinsToPlayUnlimited = 5;
 const kCoinsEarnedForRewardAd = 2;
 const kCoinsEarnedForPoints = 1;
 

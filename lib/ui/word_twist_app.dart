@@ -19,11 +19,11 @@ import 'package:word_twist/ui/spend_coins_dialog.dart';
 import 'package:word_twist/ui/word_box.dart';
 import 'package:word_twist/ui/word_holder.dart';
 
-const int kWidthLimit = 450;
+const int kWidthLimit = 400;
 
 class WordTwistApp extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {    
+  Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
     return MaterialApp(
@@ -51,7 +51,6 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> with WidgetsBindingObserver, TickerProviderStateMixin {
-
   final TwistGame twist = new TwistGame(new WordsDataSource());
   final UserPrefs _userPrefs = UserPrefsImpl.instance();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
@@ -73,7 +72,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
   AnimationController _timerScaleController;
 
   @override
-  void initState() {    
+  void initState() {
     _coinsStore = new CoinsStore(_userPrefs);
     WidgetsBinding.instance.addObserver(this);
     _shakeAnimController = new AnimationController(vsync: this, duration: const Duration(milliseconds: 500))
@@ -179,14 +178,8 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final size = MediaQuery.of(context).size;    
+    final size = MediaQuery.of(context).size;
     final List<Widget> stackChildren = [
-      FlareActor(
-        'assets/Background.flr',
-        alignment: Alignment.center,
-        fit: BoxFit.fill,
-        animation: 'rotate',
-      ),
       Padding(
         padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
         child: Column(
@@ -244,7 +237,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(4),
                                       border: Border.all(width: .5, color: Colors.white)),
-                                  height: size.width < kWidthLimit ? 40 : 46,
+                                  height: size.width < kWidthLimit ? 38 : 46,
                                   width: size.width < kWidthLimit ? 38 : 46,
                                   child: Center(
                                       child: AnimatedDefaultTextStyle(
@@ -440,33 +433,31 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
                                 )));
                   },
                 )),
-        body: twist.gameMode == null || _isLoading
-            ? Stack(children: [
-                FlareActor(
-                  'assets/Background.flr',
-                  alignment: Alignment.center,
-                  fit: BoxFit.fill,
-                  animation: 'rotate',
+        body: Stack(children: [
+          FlareActor(
+            'assets/Background.flr',
+            alignment: Alignment.center,
+            fit: BoxFit.fill,
+            animation: 'rotate',
+          ),
+          !_isLoading
+              ? Transform(
+                  transform: Matrix4.translation(_getTranslation()),
+                  child: Stack(
+                    children: stackChildren,
+                  ))
+              : Center(
+                  child: CircularProgressIndicator(),
                 ),
-                twist.gameMode == null
-                    ? Padding(
-                        child: IconButton(
-                          icon: Icon(Icons.menu),
-                          onPressed: () => _scaffoldKey.currentState.openDrawer(),
-                        ),
-                        padding: const EdgeInsets.only(top: 32, left: 16))
-                    : Container(),
-                _isLoading
-                    ? Center(
-                        child: CircularProgressIndicator(),
-                      )
-                    : Container()
-              ])
-            : Transform(
-                transform: Matrix4.translation(_getTranslation()),
-                child: Stack(
-                  children: stackChildren,
-                )));
+          twist.gameMode == null
+              ? Padding(
+                  child: IconButton(
+                    icon: Icon(Icons.menu),
+                    onPressed: () => _scaffoldKey.currentState.openDrawer(),
+                  ),
+                  padding: const EdgeInsets.only(top: 32, left: 16))
+              : Container(),          
+        ]));
   }
 
   Future<bool> _confirmCoinSpend() {

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:word_twist/game/coins_store.dart';
 import 'package:word_twist/game/twist.dart';
 
-const kCoinsToPlayUnlimited = 10;
 
 class MenuDrawer extends StatefulWidget {
   final bool canSolve;
