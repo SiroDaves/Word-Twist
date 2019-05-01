@@ -72,6 +72,7 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
             Text(
               'New Game',
               style: theme.textTheme.subhead,
+              textAlign: TextAlign.center,
             ),
             Padding(
               padding: EdgeInsets.symmetric(vertical: 8),
@@ -146,10 +147,10 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
     return AnimatedBuilder(
         animation: _controller,
         builder: (c, v) => Container(
-              width: widget.width > 600 ? widget.width * 0.7 : widget.width > 400 ? widget.width * 0.8 : widget.width,
+              width: widget.width > 600 ? widget.width * 0.7 : widget.width > 400 ? widget.width * 0.8 : widget.width * 0.9,
               color: const Color(0xFF1F1F1F),
               padding: const EdgeInsets.only(top: 48, left: 32, right: 32, bottom: 32),
-              child: Column(
+              child: Column(                
                 children: <Widget>[
                   Text(
                     'Word Twist',
@@ -158,10 +159,11 @@ class _MenuDrawerState extends State<MenuDrawer> with SingleTickerProviderStateM
                   Divider(
                     color: Colors.white70,
                   ),
+                  Expanded(child: 
                   Transform.translate(
                     offset: Offset(_offsetAnim.value, 0),
-                    child: Column(mainAxisSize: MainAxisSize.min, children: children),
-                  )
+                    child: ListView(shrinkWrap: true, children: children),
+                  ))
                 ],
               ),
             ));
