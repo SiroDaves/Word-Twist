@@ -175,7 +175,8 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);    
+    final theme = Theme.of(context);
+    final size = MediaQuery.of(context).size;    
     final List<Widget> stackChildren = [
       FlareActor(
         'assets/Background.flr',
@@ -241,7 +242,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
                                       borderRadius: BorderRadius.circular(4),
                                       border: Border.all(width: .5, color: Colors.white)),
                                   height: 46,
-                                  width: 42,
+                                  width: size.width < 500 ? 38 : 42,
                                   child: Center(
                                       child: AnimatedDefaultTextStyle(
                                           duration: const Duration(milliseconds: 250),
@@ -325,7 +326,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
     if (_coinsEarned > 0 && _coinsChanged) {
       stackChildren.add(CoinsOverlay(
         controller: _coinsAnimController,
-        screenSize: MediaQuery.of(context).size,
+        screenSize: size,
         coinsEarned: _coinsEarned,
       ));
     }
@@ -333,7 +334,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
     if (_isGameOver()) {
       stackChildren.add(GameOverOverlay(
         controller: _gameOverAnimation,
-        screenSize: MediaQuery.of(context).size,
+        screenSize: size,
       ));
     }
 
@@ -345,9 +346,9 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
                 title: twist.gameMode != GameMode.unlimited
                     ? Row(mainAxisSize: MainAxisSize.max, children: [
                         SizedBox(
-                            width: MediaQuery.of(context).size.width / 3,
+                            width: size.width / 3,
                             child: Padding(
-                                padding: const EdgeInsets.only(left: 32),
+                                padding: const EdgeInsets.only(left: 16),
                                 child: AnimatedBuilder(
                                     animation: _timerScaleController,
                                     builder: (c, v) => Transform.scale(
@@ -360,7 +361,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
                                         )))),
                         Builder(
                             builder: (c) => SizedBox(
-                                width: MediaQuery.of(context).size.width / 4,
+                                width: size.width / 5,
                                 child: IconButton(
                                   icon: Icon(Icons.plus_one),
                                   onPressed: _gameTimer.seconds > 0
@@ -397,7 +398,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
         drawer: Builder(
             builder: (c) => MenuDrawer(
                   coinsStore: _coinsStore,
-                  width: MediaQuery.of(context).size.width,
+                  width: size.width,
                   canSolve: !twist.isSolved && (_gameTimer.isTimeExpired || twist.gameMode == GameMode.unlimited),
                   onNewGameClick: (m) async {
                     if (m == GameMode.unlimited) {

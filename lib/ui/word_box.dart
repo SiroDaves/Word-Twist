@@ -37,7 +37,7 @@ class _AnimatedWordBoxState extends State<AnimatedWordBox> with SingleTickerProv
     if (widget.found) {
       animationController.forward();
     }
-    final size = MediaQuery.of(context).size.height < 600 ? 15.0 : 20.0;
+    final size = MediaQuery.of(context).size.width < 500 ? 15.0 : 20.0;
     return AnimatedBuilder(
       animation: animationController,
       builder: (BuildContext context, Widget child) {
@@ -66,7 +66,7 @@ class _AnimatedWordBoxState extends State<AnimatedWordBox> with SingleTickerProv
                                 child: Text(
                               animations[n].value >= 1.5 ? '' : widget.word[n],
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 14, color: Colors.white),
+                              style: TextStyle(fontSize: size < 20 ? 12 : 14, color: Colors.white),
                             ))))));
           }).toList(),
         );
