@@ -4,7 +4,7 @@ const _kPoints = 100;
 const _kCoinsKey = 'coins';
 const kCoinsForOneMin = 5;
 const kCoinsEarnedForRewardAd = 2;
-const kCoinsForPoints = 1;
+const kCoinsEarnedForPoints = 1;
 
 class CoinsStore {
   final UserPrefs _userPrefs;
@@ -22,10 +22,10 @@ class CoinsStore {
     final newLevel = newScore ~/ _kPoints;
     final lvlUp = newLevel > _lastLevel;
     if (lvlUp) {
-      coinEarned(kCoinsForPoints);
+      coinEarned(kCoinsEarnedForPoints);
       _lastLevel = newLevel;
     }
-    return lvlUp ? kCoinsForOneMin : 0;
+    return lvlUp ? kCoinsEarnedForPoints : 0;
   }
 
   void onRewardedVideoPlayed() {
