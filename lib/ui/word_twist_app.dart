@@ -21,8 +21,9 @@ import 'package:word_twist/ui/word_holder.dart';
 
 class WordTwistApp extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {    
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
     return MaterialApp(
       title: 'Word Twist',
       theme: ThemeData(
@@ -69,7 +70,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
   AnimationController _timerScaleController;
 
   @override
-  void initState() {
+  void initState() {    
     _coinsStore = new CoinsStore(_userPrefs);
     WidgetsBinding.instance.addObserver(this);
     _shakeAnimController = new AnimationController(vsync: this, duration: const Duration(milliseconds: 500))
@@ -174,7 +175,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final theme = Theme.of(context);    
     final List<Widget> stackChildren = [
       FlareActor(
         'assets/Background.flr',
