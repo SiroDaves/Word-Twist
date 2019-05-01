@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:word_twist/game/twist.dart';
+import 'package:word_twist/ui/word_twist_app.dart';
 
 class WordHolder extends StatefulWidget {
   final Function onTap;
@@ -39,7 +40,7 @@ class _WordHolderState extends State<WordHolder> with SingleTickerProviderStateM
                               .map((n) => Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 6),
                                   child: Container(
-                                      height: size.width < 500 ? 42 : 46,
+                                      height: size.width < kWidthLimit ? 42 : 46,
                                       child: Center(
                                           child: AnimatedDefaultTextStyle(
                                         child: Text(

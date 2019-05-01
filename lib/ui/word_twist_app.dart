@@ -19,6 +19,8 @@ import 'package:word_twist/ui/spend_coins_dialog.dart';
 import 'package:word_twist/ui/word_box.dart';
 import 'package:word_twist/ui/word_holder.dart';
 
+const int kWidthLimit = 450;
+
 class WordTwistApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {    
@@ -49,6 +51,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> with WidgetsBindingObserver, TickerProviderStateMixin {
+
   final TwistGame twist = new TwistGame(new WordsDataSource());
   final UserPrefs _userPrefs = UserPrefsImpl.instance();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
@@ -192,7 +195,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
           children: <Widget>[
             Expanded(
                 child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: size.width < 500 ? 16 : 24),
+                    padding: EdgeInsets.symmetric(vertical: size.width < kWidthLimit ? 16 : 24),
                     child: GridView.count(
                       childAspectRatio: 5,
                       padding: EdgeInsets.all(0),
@@ -220,7 +223,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
                   foundWords: twist.foundWords.length,
                 )),
             Padding(
-              padding: EdgeInsets.only(top: size.width < 500 ? 16 : 24),
+              padding: EdgeInsets.only(top: size.width < kWidthLimit ? 16 : 24),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -241,8 +244,8 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(4),
                                       border: Border.all(width: .5, color: Colors.white)),
-                                  height: size.width < 500 ? 40 : 46,
-                                  width: size.width < 500 ? 38 : 42,
+                                  height: size.width < kWidthLimit ? 40 : 46,
+                                  width: size.width < kWidthLimit ? 38 : 46,
                                   child: Center(
                                       child: AnimatedDefaultTextStyle(
                                           duration: const Duration(milliseconds: 250),

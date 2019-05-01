@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:word_twist/ui/word_twist_app.dart';
 
 class AnimatedWordBox extends StatefulWidget {
   final int count;
@@ -37,7 +38,7 @@ class _AnimatedWordBoxState extends State<AnimatedWordBox> with SingleTickerProv
     if (widget.found) {
       animationController.forward();
     }
-    final size = MediaQuery.of(context).size.width < 500 ? 15.0 : 20.0;
+    final size = MediaQuery.of(context).size.width < kWidthLimit ? 15.0 : 21.0;
     return AnimatedBuilder(
       animation: animationController,
       builder: (BuildContext context, Widget child) {

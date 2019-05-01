@@ -111,12 +111,12 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
                     Divider(),
                     RaisedButton(
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        child: Text('Buy 40 coins - \$0.49'),
+                        child: Text('Buy 40 coins'),
                         onPressed: null),
                     Divider(),
                     RaisedButton(
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        child: Text('Buy 100 coins - \$0.99'),
+                        child: Text('Buy 100 coins'),
                         onPressed: null),
                   ],
                 )))),
