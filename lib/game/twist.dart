@@ -26,7 +26,7 @@ class TwistGame {
   int get length => _letters.length;
   String get sourceLetters => _letters;
   bool isSelected(int i) => selectedIndexes[i];
-  bool get isSolved => possibleWords.length > 0 && possibleWords.length == foundWords.length; 
+  bool get isSolved => possibleWords.length > 0 && possibleWords.length == foundWords.length;
   GameMode get gameMode => _gameMode;
 
   Future createNewGame(GameMode gameMode) async {
@@ -181,13 +181,13 @@ class GameScore {
 
   int get score => _score;
 
-  void _newGame(GameMode gameMode, List<String> possibleWords) {    
+  void _newGame(GameMode gameMode, List<String> possibleWords) {
     _score = 0;
     _gameMode = gameMode;
     final divisor = min(1, (possibleWords.length / _kWordLenFactor));
     _scoreMultiplier = (1 / divisor).round();
     if (gameMode == GameMode.hard) {
-      _scoreMultiplier += (_scoreMultiplier ~/ 2);
+      _scoreMultiplier += max((_scoreMultiplier ~/ 2), 2);
     }
   }
 
