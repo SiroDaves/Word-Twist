@@ -1,6 +1,7 @@
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 import 'package:word_twist/game/coins_store.dart' show CoinsStore, kCoinsEarnedForRewardAd;
+import 'package:word_twist/ui/admob_config.dart';
 import 'package:word_twist/ui/coins_overlay.dart';
 
 class CoinStoreWidget extends StatefulWidget {
@@ -34,8 +35,11 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
       print(event);
       if (event == RewardedVideoAdEvent.rewarded) {
         _rewarded = true;
-      }
-      if (event == RewardedVideoAdEvent.completed || event == RewardedVideoAdEvent.closed) {
+      } else if (event == RewardedVideoAdEvent.loaded) {
+        setState(() {
+          _adLoaded = true;
+        });
+      } else if (event == RewardedVideoAdEvent.completed || event == RewardedVideoAdEvent.closed) {
         setState(() {
           if (_rewarded) {
             _coinsEarned = true;
@@ -45,19 +49,16 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
           }
           _adLoaded = false;
         });
-      }      
+      }
     };
     RewardedVideoAd.instance
         .load(
-            adUnitId: RewardedVideoAd.testAdUnitId,
-            targetingInfo: MobileAdTargetingInfo(              
+            adUnitId: AdMobConfig.getRewardedAdId,
+            targetingInfo: MobileAdTargetingInfo(
               childDirected: false,
-              testDevices: <String>[], // Android emulators are considered test devices
+              testDevices: <String>[],
             ))
-        .then((v) {
-      setState(() {
-        _adLoaded = v;
-      });
+        .then((v) {      
     });
     super.initState();
   }
@@ -75,7 +76,7 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
       appBar: AppBar(
         title: Text('Coin Store'),
       ),
-      body: Stack(children: [        
+      body: Stack(children: [
         SafeArea(
             child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 32, vertical: 32),
@@ -105,6 +106,7 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       child: Row(mainAxisSize: MainAxisSize.min, children: [
                         Text('Rewarded Coins'),
+                        SizedBox(height: 20, child: _adLoaded ? Container() : CircularProgressIndicator(),)
                       ]),
                       onPressed: _adLoaded ? _playRewardedVideo : null,
                     ),
