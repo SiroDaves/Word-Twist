@@ -44,10 +44,9 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
           if (_rewarded) {
             _coinsEarned = true;
             widget.coinsStore.onRewardedVideoPlayed();
-            _coinsAnimController.forward();
-            _rewarded = false;
-          }
-          _adLoaded = false;
+            _coinsAnimController.forward();            
+            _adLoaded = false;
+          }          
         });
       }
     };
@@ -58,8 +57,7 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
               childDirected: false,
               testDevices: <String>[],
             ))
-        .then((v) {      
-    });
+        .then((v) {});
     super.initState();
   }
 
@@ -104,10 +102,21 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
                     Divider(),
                     RaisedButton(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      child: Row(mainAxisSize: MainAxisSize.min, children: [
-                        Text('Rewarded Coins'),
-                        SizedBox(height: 20, child: _adLoaded ? Container() : CircularProgressIndicator(),)
-                      ]),
+                      child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Rewarded Coins'),
+                            _rewarded || _adLoaded
+                                ? Container()
+                                : Padding(
+                                    padding: EdgeInsets.only(left: 8),
+                                    child: SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(),
+                                    ))
+                          ]),
                       onPressed: _adLoaded ? _playRewardedVideo : null,
                     ),
                     Divider(),
