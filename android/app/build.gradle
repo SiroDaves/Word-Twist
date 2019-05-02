@@ -43,7 +43,7 @@ android {
     }
 
     defaultConfig {
-        manifestPlaceholders = [addMobAppId:WORD_TWIST_AD_MOB_APP_ID]
+        manifestPlaceholders = [addMobAppId:keystoreProperties['adMobAppId']]
         applicationId "com.markodevcic.word_twist"
         minSdkVersion 16
         targetSdkVersion 28

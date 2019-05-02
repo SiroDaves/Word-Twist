@@ -1,11 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.markodevcic.word_twist">
-    
+    <uses-permission android:name="com.android.vending.BILLING" />
     <application
         android:name="io.flutter.app.FlutterApplication"
         android:label="word_twist"
-        android:icon="@mipmap/ic_launcher">
-        <uses-permission android:name="com.android.vending.BILLING" />
+        android:icon="@mipmap/ic_launcher">        
         <meta-data
                 android:name="com.google.android.gms.ads.APPLICATION_ID"
                 android:value="${addMobAppId}"/>
