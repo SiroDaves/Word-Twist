@@ -11,6 +11,7 @@
 
 lib/main_ios.dart
 lib/main_android.dart
+db_filter.py
 
 # IntelliJ related
 *.iml
