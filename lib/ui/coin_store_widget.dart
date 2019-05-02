@@ -138,9 +138,8 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
         _event == RewardedVideoAdEvent.completed ||
         _event == RewardedVideoAdEvent.failedToLoad ||
         _event == RewardedVideoAdEvent.rewarded) return;
-    RewardedVideoAd.instance.show().catchError((e) async {
-      await Future.delayed(const Duration(milliseconds: 1000));
-      _playRewardedVideo();
+    RewardedVideoAd.instance.show().catchError((e) {
+      print(e);
     });
   }
 }
