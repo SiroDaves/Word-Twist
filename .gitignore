@@ -9,6 +9,7 @@
 .history
 .svn/
 
+android/key.properties
 lib/main_ios.dart
 lib/main_android.dart
 db_filter.py
