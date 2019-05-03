@@ -190,7 +190,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
                 child: Padding(
                     padding: EdgeInsets.symmetric(vertical: size.width < kWidthLimit ? 16 : 24),
                     child: GridView.count(
-                      childAspectRatio: 5,
+                      childAspectRatio: size.height > 1000 ? 8 : 5,
                       padding: EdgeInsets.all(0),
                       crossAxisCount: 3,
                       children: twist.possibleWords

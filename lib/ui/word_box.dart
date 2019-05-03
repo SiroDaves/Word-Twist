@@ -67,7 +67,7 @@ class _AnimatedWordBoxState extends State<AnimatedWordBox> with SingleTickerProv
                                 child: Text(
                               animations[n].value >= 1.5 ? '' : widget.word[n],
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: size < 20 ? 13 : 15, color: Colors.white),
+                              style: TextStyle(fontSize: size < 20 ? 12 : 14, color: Colors.white),
                             ))))));
           }).toList(),
         );
