@@ -27,13 +27,13 @@ class WordsDataSource implements WordsRepository {
     try {
       await file.writeAsBytes(buffer.asUint8List(db.offsetInBytes, db.lengthInBytes),
           mode: FileMode.write, flush: true);
-    } on FileSystemException {
-      // if (Platform.isAndroid) {
-      //   final NativeMethods _nativeMethods = new PlatformChannel();
-      //   await _nativeMethods.callNative(kCopyDb, {'dbData': buffer.asUint8List()});
-      // } else {
-      //   throw e;
-      // }
+    } on FileSystemException catch (e) {
+      if (Platform.isAndroid) {
+        final _nativeMethods = new MethodChannel('com.markodevcic.wordtwist');
+        await _nativeMethods.invokeMethod('copyDb', {'dbData': buffer.asUint8List()});
+      } else {
+        throw e;
+      }
     }
   }
 

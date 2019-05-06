@@ -39,7 +39,7 @@ class TwistGame {
     sortedLetters.sort((a, b) => a.codeUnitAt(0).compareTo(b.codeUnitAt(0)));
     await _buildPossibleWords(sortedLetters);
     resetSelection();
-    gameScore._newGame(gameMode, possibleWords);
+    gameScore.newGame(gameMode, possibleWords);
   }
 
   Future _buildPossibleWords(List<String> sortedLetters) async {
@@ -76,7 +76,7 @@ class TwistGame {
       list[n] = s;
     }
     _letters = list.join().trim();
-    gameScore._onWordTwist();
+    gameScore.onWordTwist();
   }
 
   void resetSelection() {

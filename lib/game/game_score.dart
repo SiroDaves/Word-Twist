@@ -11,7 +11,7 @@ class GameScore {
 
   int get score => _score;
 
-  void _newGame(GameMode gameMode, List<String> possibleWords) {
+  void newGame(GameMode gameMode, List<String> possibleWords) {
     _score = 0;
     _gameMode = gameMode;
     final divisor = min(1, (possibleWords.length / _kWordLenFactor));
@@ -33,7 +33,7 @@ class GameScore {
     }
   }
 
-  void _onWordTwist() {
+  void onWordTwist() {
     if (_gameMode == GameMode.hard) {
       _score -= _scoreMultiplier;
     }
