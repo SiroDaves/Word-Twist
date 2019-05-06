@@ -7,6 +7,7 @@ import "package:flare_flutter/flare_actor.dart";
 import 'package:vector_math/vector_math_64.dart' show Vector3;
 import 'package:word_twist/data/user_prefs.dart';
 import 'package:word_twist/game/coins_store.dart';
+import 'package:word_twist/game/game_timer.dart';
 import 'package:word_twist/game/twist.dart';
 import 'package:word_twist/data/word_repo.dart';
 import 'package:word_twist/game/user_prefs_impl.dart';
