@@ -7,6 +7,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:word_twist/data/repo.dart';
 
 const String _kDbFileName = 'words.sqlite';
+const String _kAppId = 'com.markodevcic.wordtwist';
 
 class WordsDataSource implements WordsRepository {
   Future<bool> isDbLoaded() async {
@@ -29,7 +30,7 @@ class WordsDataSource implements WordsRepository {
           mode: FileMode.write, flush: true);
     } on FileSystemException catch (e) {
       if (Platform.isAndroid) {
-        final _nativeMethods = new MethodChannel('com.markodevcic.wordtwist');
+        final _nativeMethods = new MethodChannel(_kAppId);
         await _nativeMethods.invokeMethod('copyDb', {'dbData': buffer.asUint8List()});
       } else {
         throw e;

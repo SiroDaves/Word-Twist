@@ -1,15 +1,16 @@
 package com.markodevcic.word_twist
 
+import android.content.Context
 import android.os.Bundle
-
 import io.flutter.app.FlutterActivity
-import io.flutter.plugins.GeneratedPluginRegistrant
 import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugins.GeneratedPluginRegistrant
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
+const val APP_ID = "com.markodevcic.wordtwist"
 const val DB_NAME = "foods.db"
 
 class MainActivity : FlutterActivity() {
@@ -17,7 +18,7 @@ class MainActivity : FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         GeneratedPluginRegistrant.registerWith(this)
-        MethodChannel(flutterView, appId).setMethodCallHandler { call, result ->
+        MethodChannel(flutterView, APP_ID).setMethodCallHandler { call, result ->
             when {                
                 call.method == "copyDb" -> {
                     val dbData = (call.arguments as Map<String, Any>) ["dbData"] as ByteArray
