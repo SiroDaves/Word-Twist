@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:word_twist/game/twist.dart';
 
 class GameScore {
-  static const int _kWordLenFactor = 100;
+  static const int _kWordLenFactor = 120;
 
   int _score = 0;
   GameMode _gameMode;
