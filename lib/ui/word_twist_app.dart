@@ -317,23 +317,19 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
             )
           ],
         ),
-      )
-    ];
-
-    if (_coinsEarned > 0 && _coinsChanged) {
-      stackChildren.add(CoinsOverlay(
-        controller: _coinsAnimController,
-        screenSize: size,
-        coinsEarned: _coinsEarned,
-      ));
-    }
-
-    if (_isGameOver()) {
-      stackChildren.add(GameOverOverlay(
-        controller: _gameOverAnimation,
-        screenSize: size,
-      ));
-    }
+      ),
+      if (_coinsEarned > 0 && _coinsChanged)
+        CoinsOverlay(
+          controller: _coinsAnimController,
+          screenSize: size,
+          coinsEarned: _coinsEarned,
+        ),
+      if (_isGameOver())
+        GameOverOverlay(
+          controller: _gameOverAnimation,
+          screenSize: size,
+        ),
+    ];    
 
     return Scaffold(
         key: _scaffoldKey,
@@ -457,7 +453,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
                     onPressed: () => _scaffoldKey.currentState.openDrawer(),
                   ),
                   padding: const EdgeInsets.only(top: 32, left: 16))
-              : Container(),          
+              : Container(),
         ]));
   }
 
