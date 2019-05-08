@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:word_twist/game/coins_store.dart' show CoinsStore, kCoinsEarnedForRewardAd;
 import 'package:word_twist/ui/admob_config.dart';
 import 'package:word_twist/ui/coins_overlay.dart';
-import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
-import 'package:flutter/services.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'dart:async';
 
 class CoinStoreWidget extends StatefulWidget {
   final CoinsStore coinsStore;
@@ -14,17 +14,22 @@ class CoinStoreWidget extends StatefulWidget {
   _CoinStoreWidgetState createState() => _CoinStoreWidgetState();
 }
 
+const Set<String> _kPurchaseIds = {
+  'com.markodevcic.wordtwist.100coins',
+};
+
 class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProviderStateMixin {
   AnimationController _coinsAnimController;
   bool _adLoaded = false;
   bool _coinsEarned = false;
   bool _rewarded = false;
+  bool _storeAvailable = false;
   RewardedVideoAdEvent _event = RewardedVideoAdEvent.leftApplication;
-  String _platformVersion = 'Unknown';
+  StreamSubscription<List<PurchaseDetails>> _subscription;
+  List<ProductDetails> _productDetails = [];
 
   @override
   void initState() {
-    initPlatformState();
     _coinsAnimController = new AnimationController(duration: const Duration(milliseconds: 1200), vsync: this)
       ..addStatusListener((s) {
         if (s == AnimationStatus.completed) {
@@ -48,61 +53,43 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
           if (_rewarded) {
             _coinsEarned = true;
             widget.coinsStore.onRewardedVideoPlayed();
-            _coinsAnimController.forward();            
+            _coinsAnimController.forward();
             _adLoaded = false;
-          }          
+          }
         });
       }
     };
-    RewardedVideoAd.instance
-        .load(
-            adUnitId: AdMobConfig.getRewardedAdId,
-            targetingInfo: MobileAdTargetingInfo(
-              childDirected: false,
-              testDevices: <String>[],
-            ))
-        .then((v) {});
-    super.initState();
-  }
+    RewardedVideoAd.instance.load(
+        adUnitId: AdMobConfig.getRewardedAdId,
+        targetingInfo: MobileAdTargetingInfo(
+          childDirected: false,
+          testDevices: <String>[],
+        ));
 
-Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    try {
-      platformVersion = await FlutterInappPurchase.platformVersion;
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
+    final Stream purchaseUpdates = InAppPurchaseConnection.instance.purchaseUpdatedStream;
+    _subscription = purchaseUpdates.listen(_handlePurchaseUpdates);
 
-    // initConnection
-    var result = await FlutterInappPurchase.initConnection;
-    print ('result: $result');
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
+    InAppPurchaseConnection.instance.isAvailable().then((v) async {
+      setState(() {
+        _storeAvailable = v;
+      });
+      if (v) {
+        final respons = await InAppPurchaseConnection.instance.queryProductDetails(_kPurchaseIds);
+        setState(() {
+          _productDetails = respons.productDetails;
+        });
+      }
     });
 
-    // refresh items for android
-    String msg = await FlutterInappPurchase.consumeAllItems;
-    print('consumeAllItems: $msg');
-
-    var p = await FlutterInappPurchase.getAppStoreInitiatedProducts();
-    print(p);
-    var s = await FlutterInappPurchase.getProducts(['com.markodevcic.wordtwist.100coins']);
-    print(s);
+    super.initState();
   }
 
   @override
   void dispose() async {
     _coinsAnimController.dispose();
     RewardedVideoAd.instance.listener = null;
+    _subscription.cancel();
     super.dispose();
-    await FlutterInappPurchase.endConnection;
   }
 
   @override
@@ -157,24 +144,23 @@ Future<void> initPlatformState() async {
                       onPressed: _adLoaded ? _playRewardedVideo : null,
                     ),
                     Divider(),
-                    RaisedButton(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        child: Text('Buy 40 coins'),
-                        onPressed: null),
-                    Divider(),
-                    RaisedButton(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        child: Text('Buy 100 coins'),
-                        onPressed: null),
+                    _storeAvailable
+                        ? Column(mainAxisSize: MainAxisSize.min, children: [
+                            for (var p in _productDetails)
+                              RaisedButton(
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                  child: Text(p.description + ' - ' + p.price),
+                                  onPressed: () {})
+                          ])
+                        : Container()
                   ],
                 )))),
-        _coinsEarned
-            ? CoinsOverlay(
-                controller: _coinsAnimController,
-                screenSize: MediaQuery.of(context).size,
-                coinsEarned: kCoinsEarnedForRewardAd,
-              )
-            : Container()
+        if (_coinsEarned)
+          CoinsOverlay(
+            controller: _coinsAnimController,
+            screenSize: MediaQuery.of(context).size,
+            coinsEarned: kCoinsEarnedForRewardAd,
+          )
       ]),
     );
   }
@@ -187,5 +173,9 @@ Future<void> initPlatformState() async {
     RewardedVideoAd.instance.show().catchError((e) {
       print(e);
     });
+  }
+
+  void _handlePurchaseUpdates(purchases) {
+    print(purchases);
   }
 }
