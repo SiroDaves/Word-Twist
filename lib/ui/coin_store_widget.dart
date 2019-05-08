@@ -24,6 +24,9 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
   bool _coinsEarned = false;
   bool _rewarded = false;
   bool _storeAvailable = false;
+
+  int _coinsAmount = 0;
+
   RewardedVideoAdEvent _event = RewardedVideoAdEvent.leftApplication;
   StreamSubscription<List<PurchaseDetails>> _subscription;
   List<ProductDetails> _productDetails = [];
@@ -35,6 +38,7 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
         if (s == AnimationStatus.completed) {
           setState(() {
             _coinsEarned = false;
+            _coinsAmount = 0;
           });
           _coinsAnimController.value = 0;
         }
@@ -52,6 +56,7 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
         setState(() {
           if (_rewarded) {
             _coinsEarned = true;
+            _coinsAmount = kCoinsEarnedForRewardAd;
             widget.coinsStore.onRewardedVideoPlayed();
             _coinsAnimController.forward();
             _adLoaded = false;
@@ -144,22 +149,25 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
                       onPressed: _adLoaded ? _playRewardedVideo : null,
                     ),
                     Divider(),
-                    _storeAvailable
-                        ? Column(mainAxisSize: MainAxisSize.min, children: [
-                            for (var p in _productDetails)
-                              RaisedButton(
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                  child: Text(p.description + ' - ' + p.price),
-                                  onPressed: () {})
-                          ])
-                        : Container()
+                    if (_storeAvailable)
+                      Column(mainAxisSize: MainAxisSize.min, children: [
+                        for (var p in _productDetails)
+                          RaisedButton(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                              child: Text('${p.description} - ${p.price}'),
+                              onPressed: () {
+                                InAppPurchaseConnection.instance.buyConsumable(
+                                    purchaseParam:
+                                        PurchaseParam(productDetails: p));
+                              })
+                      ])
                   ],
                 )))),
         if (_coinsEarned)
           CoinsOverlay(
             controller: _coinsAnimController,
             screenSize: MediaQuery.of(context).size,
-            coinsEarned: kCoinsEarnedForRewardAd,
+            coinsEarned: _coinsAmount,
           )
       ]),
     );
@@ -176,6 +184,19 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
   }
 
   void _handlePurchaseUpdates(purchases) {
-    print(purchases);
+    List<PurchaseDetails> details = purchases as List<PurchaseDetails>;
+    details.forEach((d) {
+      print(d.status);
+      print(d.productID);
+      print(d.skPaymentTransaction?.error?.domain);
+      print(d.skPaymentTransaction?.error?.userInfo);
+      print(d.skPaymentTransaction?.error?.code);      
+      if (d.status == PurchaseStatus.purchased) {
+          setState(() {
+            _coinsAmount = 100;
+            _coinsEarned = true;
+          });
+      }
+    });
   }
 }

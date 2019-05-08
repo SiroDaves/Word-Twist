@@ -28,6 +28,7 @@ class WordTwistApp extends StatelessWidget {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Word Twist',
       theme: ThemeData(
         fontFamily: 'Quicksand',
@@ -35,7 +36,7 @@ class WordTwistApp extends StatelessWidget {
         brightness: Brightness.dark,
         primarySwatch: Colors.deepPurple,
         toggleableActiveColor: Colors.purpleAccent,
-        accentColor: Colors.blueAccent,
+        accentColor: Colors.blueAccent,        
       ),
       home: MainPage(title: 'Word Twist'),
     );
@@ -104,7 +105,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
       });
     _timerScaleAnimation = Tween<double>(begin: 1, end: 1.2).animate(_timerScaleController);
     _gameTimer = new GameTimer(_onTimeExpired, _onTimeTick);
-    Future.delayed(Duration(milliseconds: 500)).then((v) => _scaffoldKey.currentState.openDrawer());
+    Future.delayed(Duration(milliseconds: 1000)).then((v) => _scaffoldKey.currentState.openDrawer());
     super.initState();
   }
 
