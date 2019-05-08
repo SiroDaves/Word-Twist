@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:word_twist/game/coins_store.dart' show CoinsStore, kCoinsEarnedForRewardAd;
 import 'package:word_twist/ui/admob_config.dart';
 import 'package:word_twist/ui/coins_overlay.dart';
+import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
+import 'package:flutter/services.dart';
 
 class CoinStoreWidget extends StatefulWidget {
   final CoinsStore coinsStore;
@@ -18,9 +20,11 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
   bool _coinsEarned = false;
   bool _rewarded = false;
   RewardedVideoAdEvent _event = RewardedVideoAdEvent.leftApplication;
+  String _platformVersion = 'Unknown';
 
   @override
   void initState() {
+    initPlatformState();
     _coinsAnimController = new AnimationController(duration: const Duration(milliseconds: 1200), vsync: this)
       ..addStatusListener((s) {
         if (s == AnimationStatus.completed) {
@@ -61,11 +65,44 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
     super.initState();
   }
 
+Future<void> initPlatformState() async {
+    String platformVersion;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      platformVersion = await FlutterInappPurchase.platformVersion;
+    } on PlatformException {
+      platformVersion = 'Failed to get platform version.';
+    }
+
+    // initConnection
+    var result = await FlutterInappPurchase.initConnection;
+    print ('result: $result');
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _platformVersion = platformVersion;
+    });
+
+    // refresh items for android
+    String msg = await FlutterInappPurchase.consumeAllItems;
+    print('consumeAllItems: $msg');
+
+    var p = await FlutterInappPurchase.getAppStoreInitiatedProducts();
+    print(p);
+    var s = await FlutterInappPurchase.getProducts(['com.markodevcic.wordtwist.100coins']);
+    print(s);
+  }
+
   @override
-  void dispose() {
+  void dispose() async {
     _coinsAnimController.dispose();
     RewardedVideoAd.instance.listener = null;
     super.dispose();
+    await FlutterInappPurchase.endConnection;
   }
 
   @override
