@@ -195,7 +195,8 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
           setState(() {
             _coinsAmount = 100;
             _coinsEarned = true;
-          });
+            widget.coinsStore.coinEarned(100);
+          });          
       }
     });
   }
