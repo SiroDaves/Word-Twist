@@ -158,7 +158,7 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
                               onPressed: () {
                                 InAppPurchaseConnection.instance.buyConsumable(
                                     purchaseParam:
-                                        PurchaseParam(productDetails: p));
+                                        PurchaseParam(productDetails: p, sandboxTesting: AdMobConfig.isInDebugMode));
                               })
                       ])
                   ],
@@ -196,6 +196,7 @@ class _CoinStoreWidgetState extends State<CoinStoreWidget> with SingleTickerProv
             _coinsAmount = 100;
             _coinsEarned = true;
             widget.coinsStore.coinEarned(100);
+            _coinsAnimController.forward();
           });          
       }
     });

@@ -105,7 +105,9 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
       });
     _timerScaleAnimation = Tween<double>(begin: 1, end: 1.2).animate(_timerScaleController);
     _gameTimer = new GameTimer(_onTimeExpired, _onTimeTick);
-    Future.delayed(Duration(milliseconds: 1000)).then((v) => _scaffoldKey.currentState.openDrawer());
+    WidgetsBinding.instance.addPostFrameCallback((d){
+      _scaffoldKey.currentState.openDrawer();
+    });   
     super.initState();
   }
 
