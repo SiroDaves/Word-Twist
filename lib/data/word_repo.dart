@@ -80,7 +80,7 @@ class WordsDataSource implements WordsRepository {
   Future<String> getRandomWord([int len = 6]) async {
     final Database db = await _getDatabase();
     try {
-      final String sql = 'SELECT * FROM words_en WHERE length(word) = ? LIMIT 1000';
+      final String sql = 'SELECT * FROM words_en WHERE length(word) = ?';
       final rows = await db.rawQuery(sql, [len]);
       final List<String> words = rows.map((r) => r['word'].toString()).toList();
       final rnd = new Random();

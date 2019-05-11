@@ -70,7 +70,7 @@ PODS:
 
 DEPENDENCIES:
   - firebase_admob (from `.symlinks/plugins/firebase_admob/ios`)
-  - Flutter (from `.symlinks/flutter/ios-release`)
+  - Flutter (from `.symlinks/flutter/ios`)
   - in_app_purchase (from `.symlinks/plugins/in_app_purchase/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
   - sqflite (from `.symlinks/plugins/sqflite/ios`)
@@ -91,7 +91,7 @@ EXTERNAL SOURCES:
   firebase_admob:
     :path: ".symlinks/plugins/firebase_admob/ios"
   Flutter:
-    :path: ".symlinks/flutter/ios-release"
+    :path: ".symlinks/flutter/ios"
   in_app_purchase:
     :path: ".symlinks/plugins/in_app_purchase/ios"
   shared_preferences:
