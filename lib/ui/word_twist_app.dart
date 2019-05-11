@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -36,7 +37,7 @@ class WordTwistApp extends StatelessWidget {
         brightness: Brightness.dark,
         primarySwatch: Colors.deepPurple,
         toggleableActiveColor: Colors.purpleAccent,
-        accentColor: Colors.blueAccent,        
+        accentColor: Colors.blueAccent,
       ),
       home: MainPage(title: 'Word Twist'),
     );
@@ -60,7 +61,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
   int _coinsEarned = 0;
 
   bool _isLoading = false;
-  bool _coinsChanged = false;
+  bool _coinsChanged = false;  
 
   GameTimer _gameTimer;
   CoinsStore _coinsStore;
@@ -105,9 +106,15 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
       });
     _timerScaleAnimation = Tween<double>(begin: 1, end: 1.2).animate(_timerScaleController);
     _gameTimer = new GameTimer(_onTimeExpired, _onTimeTick);
-    WidgetsBinding.instance.addPostFrameCallback((d){
-      _scaffoldKey.currentState.openDrawer();
-    });   
+    if (Platform.isAndroid) {
+      Future.delayed(const Duration(milliseconds: 1500)).then((v) {
+        _scaffoldKey.currentState.openDrawer();
+      });
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((d) {
+        _scaffoldKey.currentState.openDrawer();
+      });
+    }
     super.initState();
   }
 
@@ -332,7 +339,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
           controller: _gameOverAnimation,
           screenSize: size,
         ),
-    ];    
+    ];
 
     return Scaffold(
         key: _scaffoldKey,
