@@ -60,6 +60,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
 
   int _coinsEarned = 0;
 
+  static bool _firstLoad = true;
   bool _isLoading = false;
   bool _coinsChanged = false;  
 
@@ -106,14 +107,10 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
       });
     _timerScaleAnimation = Tween<double>(begin: 1, end: 1.2).animate(_timerScaleController);
     _gameTimer = new GameTimer(_onTimeExpired, _onTimeTick);
-    if (Platform.isAndroid) {
-      Future.delayed(const Duration(milliseconds: 1500)).then((v) {
-        _scaffoldKey.currentState.openDrawer();
-      });
-    } else {
+    if (!Platform.isAndroid) {
       WidgetsBinding.instance.addPostFrameCallback((d) {
         _scaffoldKey.currentState.openDrawer();
-      });
+      });      
     }
     super.initState();
   }
@@ -188,6 +185,12 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver, Ticker
 
   @override
   Widget build(BuildContext context) {
+    if (_firstLoad && Platform.isAndroid) {
+      Future.delayed(const Duration(milliseconds: 1000)).then((v) {
+        _firstLoad = false;
+        _scaffoldKey.currentState.openDrawer();
+      });
+    }
     final theme = Theme.of(context);
     final size = MediaQuery.of(context).size;
     final List<Widget> stackChildren = [

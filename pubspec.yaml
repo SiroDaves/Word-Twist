@@ -11,7 +11,7 @@ description: Word Twist Game
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+3
+version: 1.0.0+4
 
 environment:
   sdk: ">=2.2.2 <3.0.0"
@@ -48,8 +48,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets: 
-  - words.sqlite
-  - stars.flr
+  - words.sqlite  
   - Background.flr
   
   # An image asset can refer to one or more resolution-specific "variants", see
