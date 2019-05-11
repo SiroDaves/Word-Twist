@@ -37,8 +37,7 @@ class TwistGame {
     twistWord();
     final sortedLetters = _letters.split('');
     sortedLetters.sort((a, b) => a.codeUnitAt(0).compareTo(b.codeUnitAt(0)));
-    await _buildPossibleWords(sortedLetters);
-    resetSelection();
+    await _buildPossibleWords(sortedLetters);    
     gameScore.newGame(gameMode, possibleWords);
   }
 
@@ -58,8 +57,7 @@ class TwistGame {
         possibleWords
           ..clear()
           ..addAll(possibleWordsSet.toList());
-        possibleWords.sort((l, r) => l.length.compareTo(r.length));
-        print(possibleWords);
+        possibleWords.sort((l, r) => l.length.compareTo(r.length));        
         port.close();
       }
     }).asFuture();
@@ -93,8 +91,7 @@ class TwistGame {
     List<String> sortedLetters = await receivePort.first;
     final subsets = new Subsets(sortedLetters);
     print(subsets);
-    for (var s in subsets()) {
-      print(s);
+    for (var s in subsets()) {      
       if (s.length > 2) {
         s.sort((l, r) => l.toString().length.compareTo(r.toString().length));
         set.add(s.join());
